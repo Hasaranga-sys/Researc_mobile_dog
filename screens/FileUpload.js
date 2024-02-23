@@ -94,24 +94,7 @@ const FileUpload = () => {
       console.error("Error storing data in Firestore:", error);
     }
 
-    //doc
-    // setDoc(doc(db,"Predictions"),{
-    //   imageUrl: imageUrl,
-    //   textInput: textInput,
-    //   timestamp: new Date(),
-    // }) 
 
-
-
-
-    // const collectionRef = db.collection('predict_images'); // Replace with your Firestore collection name
-  
-    // // Add a new document with the image URL and text input
-    // collectionRef.add({
-    //   imageUrl: imageUrl,
-    //   textInput: textInput,
-    //   timestamp: new Date(),
-    // });
   };
 
   //file upload ne gp
@@ -174,37 +157,7 @@ console.log("UPLOAD", upload);
  
 };
 
-  
-  // const uploadMedia = async () => {
-  //   setUploading(true);
 
-  //   try{
-  //     const {uri} = await FileSystem.getInfoAsync(image);
-  //     const blob = await new Promise((resolve,reject)=>{
-  //       const xhr = new XMLHttpRequest();
-  //       xhr.onload = () =>{
-  //         resolve(xhr.response);
-  //       }
-  //       xhr.onerror = (e)=>{
-  //           reject(new TypeError('Network request failed'))
-  //       }
-  //       xhr.responseType = 'blob';
-  //       xhr.open('GET',uri,true);
-  //       xhr.send(null)
-  //     })
-  
-  //     const filename = image.substring(image.lastIndexOf('/') + 1);
-  //     const ref = firebase.storage().ref().child(filename);
-  
-  //     await ref.put(blob);
-  //     setUploading(false);
-  //     Alert.alert('Photo Uploaded');
-  //     setImage(null)
-  //   } catch(error){
-  //     console.error(error);
-  //     setUploading(false)
-  //   }
-  // }
 
 
 
@@ -220,15 +173,7 @@ console.log("UPLOAD", upload);
     />
     <Button title="Upload Data" onPress={uploadData} />
   </View>
-  //  <SafeAreaView style={styles.container}>
-  //   <TouchableOpacity style={styles.selectButton} onPress={pickImage}>
-  //     <Text >Pick an image</Text>
-  //   </TouchableOpacity>
-  //   <Text style={styles.selectButton} onPress={uploadMedia}>Upload File</Text>
-  //   <View style={styles.imageContainer}>
-  //     {image && <Image source={{uri:image}} style={{width:300,height:300}} />}
-  //   </View>
-  //  </SafeAreaView>
+  
   )
 }
 
