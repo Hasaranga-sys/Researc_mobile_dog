@@ -20,6 +20,17 @@ const firebaseConfig = {
   measurementId: "G-EK0N97JTGC"
 };
 
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+
+export const storage = getStorage(app);
+export const db = getFirestore(app);
+
+export default app;
+
+
 // if (!firebase.apps.length) {
 //     firebase.initializeApp(firebaseConfig);
 //   }
@@ -34,12 +45,3 @@ const firebaseConfig = {
 // const auth = firebase.auth();
 
 // const analytics = getAnalytics(app);
-
-const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
-
-const storage = getStorage(app);
-export const db = getFirestore(app);
-
-export default app;

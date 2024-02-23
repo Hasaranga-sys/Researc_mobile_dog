@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import firebase from 'firebase/app';
+import { getStorage } from "firebase/storage";
+import { storage } from '../firebase/firebase-config';
 
 
 import {
@@ -14,12 +17,13 @@ import {
   ActivityIndicator,
   ScrollView,
   ImageBackground,
-  TextInput, ImagePickerResult, Platform
+  TextInput, ImagePickerResult, Platform, ToastAndroid
 } from "react-native";
+import app from '../firebase/firebase-config';
 const Scan = () => {
-  const [image1, setImage1] = useState(null);
-  const [image2, setImage2] = useState(null);
-  const [image3, setImage3] = useState(null);
+  const [file1, setImage1] = useState(null);
+  const [file2, setImage2] = useState(null);
+  const [file3, setImage3] = useState(null);
 
   const pickImage = async (setImage) => {
     let result;
@@ -41,32 +45,71 @@ const Scan = () => {
     try {
       const formData = new FormData();
       formData.append('file1', {
-        uri: image1,
-        name: 'image1.jpg',
+        uri: file1,
+        name: 'file1.jpg',
         type: 'image/jpg',
       });
       formData.append('file2', {
-        uri: image2,
-        name: 'image2.jpg',
+        uri: file2,
+        name: 'file2.jpg',
         type: 'image/jpg',
       });
       formData.append('file3', {
-        uri: image3,
-        name: 'image3.jpg',
+        uri: file3,
+        name: 'file3.jpg',
         type: 'image/jpg',
       });
 
-      const response = await axios.post('http://192.168.8.4:8081/second', formData, {
+      const response = await axios.post('http://192.168.202.46:8081/second', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       console.log(response.data);
+      console.log("all rsp" ,response)
+      //firebase
+      const storageRef = firebase.getStorage(app).ref();
+
+      const uploadPromises = [];
+      [file1, file2, file3].forEach(async (file, index) => {
+        if (file) {
+          const imageRef = storageRef.child(`images/file${index + 1}.jpg`);
+          const response = await fetch(file);
+          
+          // Immediately-invoked async function to handle blob creation
+          const blob = await (async () => await response.blob())();
+  
+          uploadPromises.push(imageRef.put(blob));
+        }
+      });
+  
+      await Promise.all(uploadPromises);
+  
+      // Get download URLs
+      const downloadUrls = await Promise.all(
+        uploadPromises.map((uploadTask) => uploadTask.snapshot.ref.getDownloadURL())
+      );
+  
+      console.log('Download URLs:', downloadUrls);
+  
+
+
+      showToastWithGravity()
     } catch (error) {
       console.error('Error uploading images:', error);
     }
   };
+
+  const showToastWithGravity = () => {
+    ToastAndroid.showWithGravity(
+      'Files Uploaded Succesfully',
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM,
+    );
+  };
+
+ 
   return (
     <ScrollView style={{ backgroundColor: "##ccc9e6", flex: 1, paddingHorizontal: 10 }} >
 
@@ -84,21 +127,21 @@ const Scan = () => {
         <TouchableOpacity onPress={() => pickImage(setImage1)}>
           <Text style={styles.imageButton}>Select Image 1</Text>
         </TouchableOpacity>    
-          {image1 && <Image source={{ uri: image1 }} style={{ width: 130, height: 130 }} />}
+          {file1 && <Image source={{ uri: file1 }} style={{ width: 130, height: 130 }} />}
       </View>
 
       <View style={styles.row}>
         <TouchableOpacity onPress={() => pickImage(setImage2)}>
           <Text style={styles.imageButton}>Select Image 2</Text>
         </TouchableOpacity>    
-         {image2 && <Image source={{ uri: image2 }}  style={{ width: 130, height: 130  }} />}
+         {file2 && <Image source={{ uri: file2 }}  style={{ width: 130, height: 130  }} />}
       </View>
 
       <View style={styles.row}>
         <TouchableOpacity onPress={() => pickImage(setImage3)}>
           <Text style={styles.imageButton}>Select Image 3</Text>
         </TouchableOpacity>    
-        {image3 && <Image source={{ uri: image3 }}  style={{ width: 130, height: 130 }} />}
+        {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
       </View> 
       <Button title="Upload Images" onPress={handleUpload} />
       </View>

@@ -102,6 +102,28 @@ export default function Home() {
       </TouchableOpacity>
     </View>
 
+    <View style={styles.rowTop}>
+    
+    <TouchableOpacity onPress={() => navigation.navigate('FileUpload')}>
+          <View style={styles.bcard}>           
+            <View style={styles.incard}>
+              <Image style={styles.buttonImage} source={require("../assets/predictHome.png")}/>
+            </View>
+            <Text style={styles.buttonText}>Upload Test</Text> 
+          </View>
+     </TouchableOpacity>
+       
+         
+     <TouchableOpacity onPress={() => navigation.navigate('History')}>
+          <View style={styles.bcard}>          
+            <View style={styles.incard}>
+              <Image style={styles.buttonImage} source={require("../assets/history.png")}/>
+            </View>
+            <Text style={styles.buttonText}>History</Text>
+          </View>
+      </TouchableOpacity>
+    </View>
+
   
 
 
