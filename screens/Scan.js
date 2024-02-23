@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 // import firebase from 'firebase/app';
@@ -36,12 +36,15 @@ import {
 import app from '../firebase/firebase-config';
 import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
-
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase/firebase-config'; 
 const Scan = () => {
   const [file1, setImage1] = useState(null);
   const [file2, setImage2] = useState(null);
   const [file3, setImage3] = useState(null);
   const [textInput, setTextInput] = useState("hello")
+  const [user, setUser] = useState(null);
+  const [result, setResult] = useState([])
 
   const pickImage = async (setImage) => {
     let result;
@@ -58,6 +61,17 @@ const Scan = () => {
       setImage(result.assets[0].uri);
     }
   };
+
+   // Set up the authentication state listener
+   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      console.log("AUTH USER", authUser);
+      setUser(authUser);
+    });
+  
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
 
   const handleUpload = async () => {
     console.log("upload button clicked");
@@ -88,6 +102,12 @@ const Scan = () => {
           },
         });
         console.log("RESPONSA",response);
+        const {percentage, prediction} = response.data;
+        console.log("PERCEN and PREDIC",percentage, prediction);
+        setResult({
+          percentage: percentage,
+          prediction: prediction,
+        })
       } catch (error) {
         console.error('Axios error:', error);
       }
@@ -160,7 +180,8 @@ const Scan = () => {
             console.log(url);
             // firebaesDocumentUpload(url);
             console.log("BEFORE FIRESTORE CALL");
-            storeDataInFirestore(file1,file2,file3,textInput)
+            console.log("RRRRRRR",result.percentage);
+            storeDataInFirestore(file1,file2,file3,result,user)
           })
           .catch((error) => {
             console.log(error);
@@ -171,8 +192,8 @@ const Scan = () => {
 
   }
 
-  const storeDataInFirestore = async (file1,file2,file3, textInput) => {
-    console.log("Image uri and text input IN FIRESTORE CALL : ",file1,file2,file3, textInput);
+  const storeDataInFirestore = async (file1,file2,file3, result,user) => {
+    console.log("Image uri and text input IN FIRESTORE CALL : ",file1,file2,file3, result,user);
 
     try {
       const predictionsCollectionRef = collection(db,'Original_Predic')
@@ -180,8 +201,15 @@ const Scan = () => {
       file1 : file1,
       file2 : file2,
       file3 : file3,
-    
-      textInput: textInput,
+      user: {
+        uid: user.uid,
+        email: user.email,
+        // include other user details as needed
+      },
+      result:{
+        prediction: result.prediction,
+        percentage: result.percentage, // Fix the typo here 
+      },           
       timestamp: new Date(),
       })
       console.log("Data stored successfully in Firestore!");
@@ -239,6 +267,8 @@ const Scan = () => {
 
       <View style={styles.cardh}>      
         <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
+        <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
+        <Text>Confidance percentage  : {result.percentage}</Text>
       </View>
     </View>
 
