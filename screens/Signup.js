@@ -17,6 +17,8 @@ import {
     doc,
     getDoc,
   } from "firebase/firestore";
+  import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
+
   import {
 
     createUserWithEmailAndPassword,
@@ -31,20 +33,37 @@ const Signup = () => {
     const navigation = useNavigation();
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [address, setAddress] = useState('');
 
     const [user, setUser] = useState({
       username: "",
       email: "",
       password: "",
+      firstName: '',
+      lastName: '',
+      address: '',
     });
     const [isChecked, setChecked] = useState(false);
 
     const handleSubmit = async ()=>{
-        if(email && password){
+        if(email && password && firstName && lastName && address){
           try {
-            await createUserWithEmailAndPassword(auth,email,password)
+           await createUserWithEmailAndPassword(auth,email,password)
+           console.log("Log");
+           const registerCollectionRef = collection(db,'Registerd_User')
+           console.log("First name",firstName);
+           console.log("user emaik", user.email)
+           await setDoc(doc(registerCollectionRef),{
+            firstName:firstName,
+            lastName:lastName,
+            address,
+            email:email
+           })
+           console.log("Data stored successfully in Firestore!");
           } catch (error) {
-            console.log(error.message);
+            console.log("Error storing data in Firestore:",error.message);
           }
         }
     }
@@ -90,12 +109,29 @@ const Signup = () => {
     <View style={{ marginBottom: 30 }}>
       <Text style={styles.header_text}>Create an Account</Text>
     </View>
-    <Text style={styles.input_lable}>Full name</Text>
+
+    <Text style={styles.input_lable}>First Name</Text>
     <TextInput
       style={styles.input_text}
-      placeholder="Enter Full name"
-      value="Test Name"
-    //   onChangeText={(val) => handleChangeText("username", val)}
+      placeholder="Enter First name"
+      value={firstName}
+      onChangeText={value=>setFirstName(value)}
+    ></TextInput>
+
+    <Text style={styles.input_lable}>last Name</Text>
+    <TextInput
+      style={styles.input_text}
+      placeholder="Enter Last Name"
+      value={lastName}
+      onChangeText={value=>setLastName(value)}
+    ></TextInput>
+
+    <Text style={styles.input_lable}>Address</Text>
+    <TextInput
+      style={styles.input_text}
+      placeholder="Enter Address"
+      value={address}
+      onChangeText={value=>setAddress(value)}
     ></TextInput>
     <Text style={styles.input_lable}>Email</Text>
     <TextInput
