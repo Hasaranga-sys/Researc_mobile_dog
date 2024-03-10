@@ -104,7 +104,7 @@ export default function Home() {
 
     <View style={styles.rowTop}>
     
-    <TouchableOpacity onPress={() => navigation.navigate('FileUpload')}>
+     <TouchableOpacity onPress={() => navigation.navigate('FileUpload')}>
           <View style={styles.bcard}>           
             <View style={styles.incard}>
               <Image style={styles.buttonImage} source={require("../assets/predictHome.png")}/>
@@ -119,7 +119,20 @@ export default function Home() {
             <View style={styles.incard}>
               <Image style={styles.buttonImage} source={require("../assets/history.png")}/>
             </View>
-            <Text style={styles.buttonText}>History</Text>
+            <Text style={styles.buttonText}>Map</Text>
+          </View>
+      </TouchableOpacity>
+    </View>
+
+    {/* map */}
+    <View style={styles.rowTop}>
+         
+     <TouchableOpacity onPress={() => navigation.navigate('Map')}>
+          <View style={styles.bcard}>          
+            <View style={styles.incard}>
+              <Image style={styles.buttonImage} source={require("../assets/history.png")}/>
+            </View>
+            <Text style={styles.buttonText}>Map</Text>
           </View>
       </TouchableOpacity>
     </View>
