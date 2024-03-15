@@ -36,15 +36,18 @@ import {
 import app from '../firebase/firebase-config';
 import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
-import { onAuthStateChanged } from 'firebase/auth';
+import {getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config'; 
 const Scan = () => {
   const [file1, setImage1] = useState(null);
   const [file2, setImage2] = useState(null);
   const [file3, setImage3] = useState(null);
-  const [textInput, setTextInput] = useState("hello")
-  const [user, setUser] = useState(null);
-  const [result, setResult] = useState([])
+  const [user, setUser] = useState();
+  const [uid,setUid] = useState();
+  const [result, setResult] = useState()
+  const auths = getAuth();
+  const settingResult = null;
+  
 
   const pickImage = async (setImage) => {
     let result;
@@ -65,13 +68,18 @@ const Scan = () => {
    // Set up the authentication state listener
    useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-      console.log("AUTH USER", authUser);
+      console.log("AUTH USER", authUser.uid);
+      setUid(authUser.uid)
       setUser(authUser);
     });
   
     // Clean up the listener when the component unmounts
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    console.log("RESU", result);
+  }, [result]);
 
   const handleUpload = async () => {
     console.log("upload button clicked");
@@ -96,18 +104,42 @@ const Scan = () => {
       try {
         console.log("try block");
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('http://192.168.59.46:8081/second', formData, {
+        const response = await axios.post('http://192.168.8.4:8081/second', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        console.log("RESPONSA",response);
-        const {percentage, prediction} = response.data;
-        console.log("PERCEN and PREDIC",percentage, prediction);
-        setResult({
-          percentage: percentage,
-          prediction: prediction,
-        })
+        console.log("BEFORE IF");
+        if (response && response.data) {
+          console.log("inside IF");
+          console.log("RESPONSA", response);
+          console.log("RESPONSEBODYxx", response.data);
+      
+          // ... (Extract and log data as needed)
+          const { results: { med: { control, medicines }, header: { age, weight }, predictions: { confidence, classs } } } = response.data;
+          console.log("control and medicine", control, medicines);
+          console.log("age and weight", age, weight);
+          console.log("confidance and class", confidence, classs);
+      
+          // const { percentage, prediction } = response.data;
+          // console.log("PERCEN and PREDIC", percentage, prediction);
+
+          console.log("Response data:", response.data);
+
+          
+          
+          const settingResult = {medicines,control,age,weight,confidence,classs};
+          console.log("SETTING THE RESx",settingResult)
+          console.log("RESUX",result);
+          console.log("CALLING THE UPDATE METHOD");
+          uploadImage(file1,file2,file3,settingResult);
+      
+          
+        } else {
+          console.error("Error: No response or response data received.");
+        }
+        
+        
       } catch (error) {
         console.error('Axios error:', error);
       }
@@ -115,41 +147,16 @@ const Scan = () => {
      
       // console.log("all rsp" ,response)
       //firebase
-      console.log("FIREBASE");
+      // console.log("FIREBASE");
       // const storageRef = getStorage(app).ref();
-      console.log("FILE 1", file1);
-      console.log("FILE 2", file2);
-      console.log("FILE 3", file3);
+      // console.log("FILE 1", file1);
+      // console.log("FILE 2", file2);
+      // console.log("FILE 3", file3);
 
       //new mine
-      uploadImage(file1,file2,file3);
+      // uploadImage(file1,file2,file3,settingResult);
 
 
-      // const uploadPromises = [];
-      // console.log("FOREACH FILE");
-      // [file1, file2, file3].forEach(async (file, index) => {
-      //   if (file) {
-      //     const imageRef = ref(storage,`images/file${index + 1}.jpg`)
-      //     // const imageRef = storageRef.child(`images/file${index + 1}.jpg`);
-      //     const response = await fetch(file);
-          
-      //     // Immediately-invoked async function to handle blob creation
-      //     console.log("BLOB");
-      //     const blob = await (async () => await response.blob())();
-      //     console.log("RESP BLOP", blob);
-  
-      //     uploadPromises.push(imageRef.put(blob));
-      //   }
-      // });
-  
-      // await Promise.all(uploadPromises);
-  
-      // // Get download URLs
-      // const downloadUrls = await Promise.all(
-      //   uploadPromises.map((uploadTask) => uploadTask.snapshot.ref.getDownloadURL())
-      // );
-  
-      // console.log('Download URLs:', downloadUrls);
   
 
 
@@ -159,7 +166,8 @@ const Scan = () => {
     }
   };
 
-  const uploadImage = async (file1,file2,file3) => {
+  const uploadImage = async (file1,file2,file3,settingResult) => {
+    console.log("settingRESULTLOG",settingResult);
       console.log("UPLOAD IMAGE LOG", file1,file2,file3);
       const response = await fetch(file1,file2,file3);
       const blob = await response.blob();
@@ -180,8 +188,13 @@ const Scan = () => {
             console.log(url);
             // firebaesDocumentUpload(url);
             console.log("BEFORE FIRESTORE CALL");
-            console.log("RRRRRRR",result.percentage);
-            storeDataInFirestore(file1,file2,file3,result,user)
+            console.log("RRRRRRR",result);
+            
+            // storeDataInFirestore(file1,file2,file3,result,user)
+           
+              console.log("BEFORE CALL", settingResult);
+              storeDataInFirestore(file1, file2, file3, settingResult);
+           
           })
           .catch((error) => {
             console.log(error);
@@ -191,9 +204,16 @@ const Scan = () => {
       )
 
   }
+  //sample method
 
-  const storeDataInFirestore = async (file1,file2,file3, result,user) => {
-    console.log("Image uri and text input IN FIRESTORE CALL : ",file1,file2,file3, result,user);
+
+  const storeDataInFirestore = async (file1,file2,file3, settingResult) => {
+    console.log("Image uri and text input IN FIRESTORE CALL : ",file1,file2,file3, settingResult);
+
+    console.log("autho",auths.currentUser.email);
+    
+    console.log("udi-ages",settingResult);
+  
 
     try {
       const predictionsCollectionRef = collection(db,'Original_Predic')
@@ -201,15 +221,28 @@ const Scan = () => {
       file1 : file1,
       file2 : file2,
       file3 : file3,
-      user: {
-        uid: user.uid,
-        email: user.email,
-        // include other user details as needed
+      user:{
+        email:auths.currentUser.email,
       },
-      result:{
-        prediction: result.prediction,
-        percentage: result.percentage, // Fix the typo here 
-      },           
+      // uid:uid.uid,
+      // user: {
+      //   uid: user.uid,
+      //   email: user.email,
+      //   // include other user details as needed
+      // },
+      // result:{
+      //   age:result.age,
+      //   weight:result.weight,
+      // },    
+      results:{
+        age:settingResult.age,
+        classs:settingResult.classs,
+        weight:settingResult.weight,
+        confidence:settingResult.confidence,
+        control:settingResult.control,
+        medicines:settingResult.medicines,
+
+      },       
       timestamp: new Date(),
       })
       console.log("Data stored successfully in Firestore!");
@@ -219,6 +252,13 @@ const Scan = () => {
 
 
   };
+
+  //new one with promise
+  const fetchDataAndSaveTofirebase = () =>{
+    return new Promise((resolve,reject) =>{
+      handleUpload()
+    })
+  }
 
   const showToastWithGravity = () => {
     ToastAndroid.showWithGravity(
@@ -263,12 +303,14 @@ const Scan = () => {
         {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
       </View> 
       <Button title="Upload Images" onPress={handleUpload} />
+
+      {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
       </View>
 
       <View style={styles.cardh}>      
         <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
-        <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
-        <Text>Confidance percentage  : {result.percentage}</Text>
+        {/* <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
+        <Text>Confidance percentage  : {result.percentage}</Text> */}
       </View>
     </View>
 
