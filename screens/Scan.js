@@ -45,6 +45,7 @@ const Scan = () => {
   const [user, setUser] = useState();
   const [uid,setUid] = useState();
   const [result, setResult] = useState()
+  const [resultData, setResultData] = useState();
   const auths = getAuth();
   const settingResult = null;
   
@@ -83,6 +84,10 @@ const Scan = () => {
 
   const handleUpload = async () => {
     console.log("upload button clicked");
+    if (!file1 || !file2 || !file3) {
+      alert("Error: All three files are required.");
+      return;
+  }
     try {
       const formData = new FormData();
       formData.append('file1', {
@@ -104,34 +109,34 @@ const Scan = () => {
       try {
         console.log("try block");
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('http://192.168.8.4:8081/second', formData, {
+        const response = await axios.post('http://192.168.95.46:8081/second', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
         console.log("BEFORE IF");
         if (response && response.data) {
-          console.log("inside IF");
-          console.log("RESPONSA", response);
-          console.log("RESPONSEBODYxx", response.data);
+          // console.log("inside IF");
+          // console.log("RESPONSA", response);
+          // console.log("RESPONSEBODYxx", response.data);
       
           // ... (Extract and log data as needed)
           const { results: { med: { control, medicines }, header: { age, weight }, predictions: { confidence, classs } } } = response.data;
-          console.log("control and medicine", control, medicines);
-          console.log("age and weight", age, weight);
-          console.log("confidance and class", confidence, classs);
+          // console.log("control and medicine", control, medicines);
+          // console.log("age and weight", age, weight);
+          // console.log("confidance and class", confidence, classs);
       
           // const { percentage, prediction } = response.data;
           // console.log("PERCEN and PREDIC", percentage, prediction);
 
-          console.log("Response data:", response.data);
+          // console.log("Response data:", response.data);
 
           
           
           const settingResult = {medicines,control,age,weight,confidence,classs};
-          console.log("SETTING THE RESx",settingResult)
-          console.log("RESUX",result);
-          console.log("CALLING THE UPDATE METHOD");
+          // console.log("SETTING THE RESx",settingResult)
+          // console.log("RESUX",result);
+          // console.log("CALLING THE UPDATE METHOD");
           uploadImage(file1,file2,file3,settingResult);
       
           
@@ -213,6 +218,7 @@ const Scan = () => {
     console.log("autho",auths.currentUser.email);
     
     console.log("udi-ages",settingResult);
+    setResultData(settingResult);
   
 
     try {
@@ -246,6 +252,7 @@ const Scan = () => {
       timestamp: new Date(),
       })
       console.log("Data stored successfully in Firestore!");
+      DetailsDisplay();
     } catch (error) {
       console.error("Error storing data in Firestore:", error);
     }
@@ -268,63 +275,92 @@ const Scan = () => {
     );
   };
 
+  // const DetailsDisplay = () => {
+  //   if (!settingResult) {
+  //     return <Text>Data not available</Text>; // Handle the case where settingResult is null or undefined
+  //   }
+  
+  //   return (
+  //     <View>
+  //       <Text style={{ width: 220, fontWeight: '600', fontSize: 20 }}>Weight: {settingResult.weight}</Text>
+  //       {/* ... Other Text components */}
+  //     </View>
+  //   );
+  // };
+
  
   return (
-    <ScrollView style={{ backgroundColor: "##ccc9e6", flex: 1, paddingHorizontal: 10 }} >
-
-  <View style={styles.headerRow}>
-     <Text style={{padding: 7, marginTop:50, margin:0, fontSize:25,fontWeight:"900"}}>Image Scan</Text>
-     <Image style={{height:100,width:100,top:20,right:9}} source={require("../assets/selfie.png")}/>
-    </View>
+    <View style={styles.container}>
 
 
 
+    <View style={styles.headerRow}>
+        <Text style={{padding: 7, marginTop:50, margin:0, fontSize:25,fontWeight:"900"}}>Image Scan</Text>
+        <Image style={{height:100,width:100,top:20,right:9}} source={require("../assets/selfie.png")}/>
+        </View>
+        <ScrollView style={{ backgroundColor: "##ccc9e6", flex: 1, paddingHorizontal: 10 }} >
+              <View style={styles.container}>      
+            <View style={styles.cardh}>  
+            <View style={styles.row}>
+              <TouchableOpacity onPress={() => pickImage(setImage1)}>
+                <Text style={styles.imageButton}>Select Image 1</Text>
+              </TouchableOpacity>    
+                {file1 && <Image source={{ uri: file1 }} style={{ width: 130, height: 130 }} />}
+            </View>
 
-    <View style={styles.container}>      
-      <View style={styles.cardh}>  
-      <View style={styles.row}>
-        <TouchableOpacity onPress={() => pickImage(setImage1)}>
-          <Text style={styles.imageButton}>Select Image 1</Text>
-        </TouchableOpacity>    
-          {file1 && <Image source={{ uri: file1 }} style={{ width: 130, height: 130 }} />}
-      </View>
+            <View style={styles.row}>
+              <TouchableOpacity onPress={() => pickImage(setImage2)}>
+                <Text style={styles.imageButton}>Select Image 2</Text>
+              </TouchableOpacity>    
+              {file2 && <Image source={{ uri: file2 }}  style={{ width: 130, height: 130  }} />}
+            </View>
 
-      <View style={styles.row}>
-        <TouchableOpacity onPress={() => pickImage(setImage2)}>
-          <Text style={styles.imageButton}>Select Image 2</Text>
-        </TouchableOpacity>    
-         {file2 && <Image source={{ uri: file2 }}  style={{ width: 130, height: 130  }} />}
-      </View>
+            <View style={styles.row}>
+              <TouchableOpacity onPress={() => pickImage(setImage3)}>
+                <Text style={styles.imageButton}>Select Image 3</Text>
+              </TouchableOpacity>    
+              {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
+            </View> 
+            <View style={{marginTop:20}} >
+              
+            <Button  title="Upload Images" onPress={handleUpload} />
+            </View>
 
-      <View style={styles.row}>
-        <TouchableOpacity onPress={() => pickImage(setImage3)}>
-          <Text style={styles.imageButton}>Select Image 3</Text>
-        </TouchableOpacity>    
-        {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
-      </View> 
-      <Button title="Upload Images" onPress={handleUpload} />
+            {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
+            </View>
 
-      {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
-      </View>
+            <View style={styles.cardh}>      
+              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
+              <Text style={{ fontWeight: 'bold' }}>Age: {resultData?.age}</Text>
+              <Text style={{ fontWeight: 'bold' }}>Weight: {resultData?.weight}</Text>
+              <Text style={{ fontWeight: 'bold' }}>Confidance: {resultData?.confidence}</Text>
+              <Text style={{ fontWeight: 'bold' }}>Class: {resultData?.classs}</Text>
+              <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
+              <Text>       
+              {resultData?.control.map((step, index) => (
+                <View key={index}>
+                  <Text>{index + 1}. {step}</Text>
+                </View>         
+                ))}
+              </Text>
+              <Text style={{ fontWeight: 'bold' }}>Medicines:</Text>
+              <Text>
+              {resultData?.medicines.map((step, index) => (
+                <View style={{width:350}} key={index}>
+                  <Text>{index + 1}. {step}</Text>
+                </View>         
+                ))}
+              </Text>
+              {/* <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
+              <Text>Confidance percentage  : {result.percentage}</Text> */}
+              
+            </View>
+          </View>
+        </ScrollView>
 
-      <View style={styles.cardh}>      
-        <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
-        {/* <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
-        <Text>Confidance percentage  : {result.percentage}</Text> */}
-      </View>
-    </View>
+   </View>  
 
-      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-     <Text>Upload Images</Text>
-     <Button title="Pick Image 1" onPress={() => pickImage(setImage1)} />
-     {image1 && <Image source={{ uri: image1 }} style={{ width: 200, height: 200 }} />}
-     <Button title="Pick Image 2" onPress={() => pickImage(setImage2)} />
-    {image2 && <Image source={{ uri: image2 }} style={{ width: 200, height: 200 }} />}
-     <Button title="Pick Image 3" onPress={() => pickImage(setImage3)} />
-     {image3 && <Image source={{ uri: image3 }} style={{ width: 200, height: 200 }} />}
-     <Button title="Upload Images" onPress={handleUpload} />
-   </View> */}
-    </ScrollView>
+  
    
   )
 }
@@ -332,6 +368,10 @@ const Scan = () => {
 export default Scan
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    
+  },
 imageButton:{
   padding:5,
  width:160, fontWeight:"600", fontSize:20
@@ -344,7 +384,8 @@ padding:5,
   flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
-    width:"100%",
+    width:"95%",
+    left:10
  },
        
   cardh: {

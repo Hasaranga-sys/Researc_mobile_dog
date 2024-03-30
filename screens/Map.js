@@ -10,6 +10,7 @@ import { auth } from '../firebase/firebase-config';
 import MapView, {Callout,Marker, PROVIDER_GOOGLE} from 'react-native-maps'
 import { useNavigation } from "@react-navigation/native";
 import { markers } from '../assets/marker';
+import * as Permissions from 'expo-location';
 
 const INITIAL_REGION = {
     latitude:37.33,
@@ -19,22 +20,40 @@ const INITIAL_REGION = {
 };
 
 const Map = () => {
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const mapRef = useRef(null);
     const navigation = useNavigation();
 
     useEffect(()=>{
-        navigation.setOptions({
-            headerRight: ()=>(
-                <TouchableOpacity onPress={focousMap}>
-                    <View style={{padding:10}}>
-                        <Text>Focous</Text>
-                    </View>
-                </TouchableOpacity>
-            )
-        })
+        (async () => {
+            let { status } = await Permissions.askAsync(Permissions.LOCATION);
+            if (status == 'granted') {
+                const locationData = await Location.getCurrentPositionAsync({});
+                setLocation(locationData.coords);
+                navigation.setOptions({
+                    headerRight: ()=>(
+                        <TouchableOpacity onPress={focousMap}>
+                            <View style={{padding:10}}>
+                                <Text>Focous</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )
+                })
+              setErrorMsg('Permission to access location was denied');
+             
+            }else {
+                setErrorMsg('Permission to access location was denied');
+            }
+      
+        
 
-    },[])
+          })();
+
+    },[navigation])
+
+
 
     const focousMap = () =>{
         const GreenBayStadium = {
@@ -52,6 +71,19 @@ const Map = () => {
     const onMarkerSelected = (marker) => {
         Alert.alert(marker.name)
     };     
+
+    const handleCenterOnLocation = async () => {
+        if (!location) {
+          return;
+        }
+        const map = await mapRef.current; // Assuming you have a ref for the MapView
+        map.animateToRegion({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      };
   
   
   return (
@@ -67,8 +99,8 @@ const Map = () => {
                 </TouchableOpacity>
         <View style={styles.mapCard}>
         <MapView style={styles.map} provider={PROVIDER_GOOGLE }
-        showsUserLocation
-        showsMyLocationButton
+        showsUserLocation={true}
+        showsMyLocationButton={true}
         initialRegion={{
             latitude: 6.903971020603182,
             longitude: 79.95515273932618,
@@ -77,6 +109,15 @@ const Map = () => {
         }}
         
         ref={mapRef}>
+            {location && (
+            <Marker coordinate={location}>
+              <Callout>
+                <View style={{ padding: 10 }}>
+                  <Text style={{ fontSize: 19 }}>Your Location</Text>
+                </View>
+              </Callout>
+            </Marker>
+          )}
             {markers.map((marker,index)=>(
                 <Marker key={index} coordinate={marker}>
                     <Callout>
@@ -88,6 +129,7 @@ const Map = () => {
                  </Marker>
             ))}
         </MapView>
+        
         </View>
         
     

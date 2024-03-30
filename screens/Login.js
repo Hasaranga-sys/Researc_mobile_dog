@@ -6,8 +6,10 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
+    ImageBackground
   } from "react-native";
-  import {auth} from '../firebase/firebase-config'
+  import {auth} from '../firebase/firebase-config';
+
 
 
   import { useNavigation } from "@react-navigation/native";
@@ -30,98 +32,95 @@ export default function Login() {
       }
     }
   return (
-    <ScrollView style={styles.main_container}>
-    <View style={{ marginBottom: 50 }}>
-      <Text style={styles.header_text}>Welcome to Pet Care</Text>
-      <Text style={{ color: "#130160", textAlign: "center", fontSize: 17 }}>
-        Login to Continoue
-      </Text>
-    </View>
-    <View>
-      <Text style={styles.input_lable}>Email</Text>
-      <TextInput
-        style={styles.input_text}
-        keyboardType="email-address"
-        placeholder="Enter email"
-        // onChangeText={(text) => setEmail(text)}
-        value={email}
-        onChangeText={value=>setEmail(value)}
-      ></TextInput>
-      <Text style={styles.input_lable}>Password</Text>
-      <TextInput
-        style={styles.input_text}
-        secureTextEntry={true}
-        placeholder="Enter password"
-        // onChangeText={(text) => setPassword(text)}
-        value={password}
-        onChangeText={value=>setPassword(value)}
-      ></TextInput>
 
-      <TouchableOpacity
-        style={{
-          alignContent: "center",
-          marginTop: 35,
-          backgroundColor: "#0D47A1",
-          height: 45,
-          justifyContent: "center",
-          alignItems: "center",
-          borderRadius: 7,
-        }}
-        // onPress={() => signin()}
-        onPress={handleSubmit}
-        underlayColor="#0084fffa"
-      >
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
-          Login
-        </Text>
-      </TouchableOpacity>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          marginTop: 30,
-        }}
-      >
-        <Text
-          style={{
-            color: "#130160",
-            fontSize: 17,
-            textAlign: "center",
-            marginRight: 7,
-          }}
-        >
-          You don't have an account yet? HOMe
-        </Text>
-        {/* <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-          <Text
+       <ScrollView style={styles.main_container}>
+      <View>
+      <View style={{ marginBottom: 50 }}>
+     
+
+     <Text style={styles.header_text}>Hello Welcome Back!!</Text>
+    
+     <ImageBackground style={{height:200, width:200, left:80,top:20}} source={require("../assets/box.png")}></ImageBackground>
+   </View>
+   
+        <View style={styles.cardh}>
+          <Text style={styles.input_lable}>Email</Text>
+          <TextInput
+            style={styles.input_text}
+            keyboardType="email-address"
+            placeholder="Enter email"
+            // onChangeText={(text) => setEmail(text)}
+            value={email}
+            onChangeText={value=>setEmail(value)}
+          ></TextInput>
+          <Text style={styles.input_lable}>Password</Text>
+          <TextInput
+            style={styles.input_text}
+            secureTextEntry={true}
+            placeholder="Enter password"
+            // onChangeText={(text) => setPassword(text)}
+            value={password}
+            onChangeText={value=>setPassword(value)}
+          ></TextInput>
+
+          <TouchableOpacity
             style={{
-              fontWeight: "bold",
-              opacity: 0.6,
-              fontSize: 17,
-              color: "#1565C0",
+              alignContent: "center",
+              marginTop: 35,
+              backgroundColor: "#0D47A1",
+              height: 45,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 7,
+            }}
+            // onPress={() => signin()}
+            onPress={handleSubmit}
+            underlayColor="#0084fffa"
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
+              Login
+            </Text>
+          </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 30,
             }}
           >
-            Sign Up
-          </Text>
+            <Text
+              style={{
+                color: "#130160",
+                fontSize: 17,
+                textAlign: "center",
+                marginRight: 7,
+              }}
+            >
+              New to app Register 
+            </Text>
           
-        </TouchableOpacity> */}
 
-        <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-          <Text
-            style={{
-              fontWeight: "bold",
-              opacity: 0.6,
-              fontSize: 17,
-              color: "#1565C0",
-            }}
-          >
-            register
-          </Text>
-          
-        </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  opacity: 0.6,
+                  fontSize: 17,
+                  color: "#1565C0",
+                }}
+              >
+               Here!!
+              </Text>
+              
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-    </View>
+  
+    
   </ScrollView>
+
+  
   )
 }
 const styles = StyleSheet.create({
@@ -150,6 +149,16 @@ const styles = StyleSheet.create({
       marginVertical: 5,
       fontWeight: "bold",
       fontSize: 20,
+    },
+    cardh: {
+      overflow: "hidden",    
+      justifyContent: 'center',
+      width: "100%", // Set your desired width
+  
+      backgroundColor: '#e1e4ed', // Set your desired background color
+      padding: 16,
+      borderRadius:25,
+    
     },
   });
   

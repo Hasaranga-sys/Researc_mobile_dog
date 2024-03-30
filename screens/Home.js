@@ -14,6 +14,8 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { auth } from '../firebase/firebase-config';
+import {getAuth, signOut  } from 'firebase/auth';
 
 
 
@@ -32,6 +34,8 @@ export default function Home() {
     { id: 9, name: 'Item 9' },
     { id: 10, name: 'Item 10' },
   ]);
+  const auths = getAuth();
+  
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -41,35 +45,62 @@ export default function Home() {
     setModalVisible(false);
   };
 
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
   const handleLogoutClick = () => {
     // Handle the logout functionality
     // Add your logout logic here
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      console.log('User signed out');
+      navigation.navigate('Login')
+    } catch (error) {
+      console.error('Sign-out error:', error.message);
+    }
+  };
+
+  const goToProfile = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      console.log('User signed out');
+      navigation.navigate('Login')
+    } catch (error) {
+      console.error('Sign-out error:', error.message);
+    }
   };
     
   return (
     <ScrollView style={{ backgroundColor: "##ccc9e6", flex: 1, paddingHorizontal: 10 }} >
     <View style={styles.row}>
      <Text style={{padding: 7, marginTop:50, margin:0, fontSize:40,fontWeight:"900"}}>Pet Care</Text>
-     <ImageBackground style={{height:30,width:30,top:75,right:9}} source={require("../assets/profile.png")}>
-     <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity style={styles.modalOption} onPress={handleProfileClick}>
-            <Text style={styles.modalOptionText}>Go to Profile</Text>
+     <TouchableOpacity onPress={toggleDropdown}>
+        <ImageBackground
+          style={styles.imageBackground}
+          source={require("../assets/profile.png")}
+        />
+      </TouchableOpacity>
+      {showDropdown && (
+        <View style={styles.dropdown}>
+          {/* Content of your dropdown menu */}
+          <TouchableOpacity onPress={handleSignOut} style={styles.dropdownButton}>
+            <Text>  Sign Out</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalOption} onPress={handleLogoutClick}>
-            <Text style={styles.modalOptionText}>Logout</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.dropdownButton}>
+            <Text>View Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalVisible(false)}>
-            <Text style={styles.modalCancelText}>Cancel</Text>
-          </TouchableOpacity>
+          
+         
         </View>
-      </Modal>
-     </ImageBackground>
+      )}
     </View>
 
   <View>     
@@ -102,27 +133,7 @@ export default function Home() {
       </TouchableOpacity>
     </View>
 
-    <View style={styles.rowTop}>
-    
-     <TouchableOpacity onPress={() => navigation.navigate('FileUpload')}>
-          <View style={styles.bcard}>           
-            <View style={styles.incard}>
-              <Image style={styles.buttonImage} source={require("../assets/predictHome.png")}/>
-            </View>
-            <Text style={styles.buttonText}>Upload Test</Text> 
-          </View>
-     </TouchableOpacity>
-       
-         
-     <TouchableOpacity onPress={() => navigation.navigate('History')}>
-          <View style={styles.bcard}>          
-            <View style={styles.incard}>
-              <Image style={styles.buttonImage} source={require("../assets/history.png")}/>
-            </View>
-            <Text style={styles.buttonText}>Map</Text>
-          </View>
-      </TouchableOpacity>
-    </View>
+   
 
     {/* map */}
     <View style={styles.rowTop}>
@@ -130,7 +141,7 @@ export default function Home() {
      <TouchableOpacity onPress={() => navigation.navigate('Map')}>
           <View style={styles.bcard}>          
             <View style={styles.incard}>
-              <Image style={styles.buttonImage} source={require("../assets/history.png")}/>
+              <Image style={styles.buttonImage} source={require("../assets/map.png")}/>
             </View>
             <Text style={styles.buttonText}>Map</Text>
           </View>
@@ -155,6 +166,34 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+  },
+  dropdownButton: {
+    padding: 10,
+  },
+  imageBackground: {
+    height: 30,
+    width: 30,
+    top: 75,
+    right: 9,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 40, // Adjust this value as per your design
+    right: 40, // Adjust this value as per your design
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
 
   box: {
       backgroundColor: '#f2f2f2',

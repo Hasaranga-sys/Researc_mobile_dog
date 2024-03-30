@@ -19,6 +19,8 @@ import Signup from './screens/Signup';
 import useAuth from './firebase/useAuth';
 import FileUpload from './screens/FileUpload';
 import Map from './screens/Map';
+import ViewHistory from './screens/ViewHistory';
+import Profile from './screens/Profile';
 
 // 
 export default function App() {
@@ -301,6 +303,12 @@ export default function App() {
               <Stack.Screen  name="Map"  component={Map}
                options={{ title: "Map", headerStyle: { backgroundColor: "#ccc9e6" }, headerShadowVisible: false,   headerTitleAlign: "center",   headerShown: false, }} /> 
           
+              <Stack.Screen  name="ViewHistory"  component={ViewHistory}
+                 options={{ title: "ViewHistory", headerStyle: { backgroundColor: "#ccc9e6" }, headerShadowVisible: false,   headerTitleAlign: "center",   headerShown: false, }} /> 
+
+              <Stack.Screen  name="Profile"  component={Profile}
+                 options={{ title: "Profile", headerStyle: { backgroundColor: "#ccc9e6" }, headerShadowVisible: false,   headerTitleAlign: "center",   headerShown: false, }} /> 
+
           </Stack.Navigator>
         </NavigationContainer>
        

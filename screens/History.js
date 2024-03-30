@@ -1,17 +1,20 @@
 
-import { ScrollView, StyleSheet, Text, View, FlatList,TouchableOpacity,Image } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, FlatList,TouchableOpacity,Image,ImageBackground } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
-import { onAuthStateChanged } from 'firebase/auth';
+import {getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config';
+import { useNavigation } from "@react-navigation/native";
 
 const History = () => {
 
   const [data, setData] = useState([]);
   const [user, setUser] = useState();
+  const auths = getAuth();
+  const navigation = useNavigation();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log("AUTH USER", authUser);
@@ -36,22 +39,7 @@ const History = () => {
     console.log("DATASET",data);
   };
  
-    // useEffect(() => {
-    //     const fetchBookings = async () => {
-    //       try {
-    //         const token = await AsyncStorage.getItem('authToken'); // Retrieve the JWT token from AsyncStorage or any other storage mechanism
-    //         const headers = {
-    //           Authorization: `Bearer ${token}`,
-    //         };
-    //         // const response = await axiosInstance.post('http://192.168.43.172:6000/api/bookings/get-bookings-by-user-id', {}, { headers });
-    //         setData(response.data.data);
-    //       } catch (error) {
-    //         console.log(error);
-    //       }
-    //     };
-      
-    //     fetchBookings();
-    //   }, []);
+
 
       const fetchFromDatabase = async(user) =>{
         try {
@@ -63,8 +51,8 @@ const History = () => {
           //new from off doc
           console.log("Strt new");
           // const userMail = user.email;
-          console.log("USER EMAIL",user.email);
-          const allData = query(collection(db,"Original_Predic"),where("user.email", "==" , user.email))
+          console.log("USER EMAIL",auths.currentUser.email);
+          const allData = query(collection(db,"Original_Predic"),where("user.email", "==" , auths.currentUser.email))
           console.log("ALL data",allData);
           const dataSnapshot = await getDocs(allData)
           console.log("SNapshot_2",dataSnapshot);
@@ -103,13 +91,17 @@ const History = () => {
           file1: doc.data().file1,
           file2: doc.data().file2,
           file3: doc.data().file3,
-          result: {
-            percentage: doc.data().result.percentage,
-            prediction: doc.data().result.prediction,
-          },timestamp: doc.data().timestamp,
+          // result: {
+          //   percentage: doc.data().result.percentage,
+          //   prediction: doc.data().result.prediction,
+          // },
+          results: {
+            age: doc.data().results.age,
+            control:doc.data()
+          },
+          timestamp: doc.data().timestamp,
           user: {
             email: doc.data().user.email,
-            uid: doc.data().user.uid,
           },
               })
             })
@@ -130,6 +122,7 @@ const History = () => {
         <View style={styles.cardh}>  
         <View style={styles.row}>
         <TouchableOpacity >
+          <Text>{item.timestamp}</Text>
           <Text style={styles.imageButton}>Image 3</Text>
         </TouchableOpacity> 
            <Image source={{ uri: item.file1 }} style={{ width: 130, height: 130 }} />
@@ -155,37 +148,88 @@ const History = () => {
           <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
           <Text>Confidance percentage  : {result.percentage}</Text>
         </View> */}
+        <View  style={styles.box1}>
+          {/* <Image source={{ uri: item.file1 }} style={{ width: 100, height: 100 }} />
+          <Image source={{ uri: item.file2 }} style={{ width: 100, height: 100 }} />
+          <Image source={{ uri: item.file3 }} style={{ width: 100, height: 100 }} /> */}
+              {/* <Text>Result Percentage: {item.result.percentage}</Text>
+              <Text>Result Prediction: {item.result.prediction}</Text> */}
+              <Text>Timestamp: {item.timestamp.toDate().toString()}</Text>
+              {/* <Text>User Email: {item.user.email}</Text>
+              <Text>User UID: {item.user.uid}</Text> */}
+        </View>
       </View>
 
-        // <View  style={styles.box1}>
-        //   <Image source={{ uri: item.file1 }} style={{ width: 100, height: 100 }} />
-        //   <Image source={{ uri: item.file2 }} style={{ width: 100, height: 100 }} />
-        //   <Image source={{ uri: item.file3 }} style={{ width: 100, height: 100 }} />
-        //       <Text>Result Percentage: {item.result.percentage}</Text>
-        //       <Text>Result Prediction: {item.result.prediction}</Text>
-        //       <Text>Timestamp: {item.timestamp.toDate().toString()}</Text>
-        //       <Text>User Email: {item.user.email}</Text>
-        //       <Text>User UID: {item.user.uid}</Text>
-        // </View>
+        
       );
+
+  const handleHistoryClick = (item) => {
+    // Navigate to Details component and pass necessary data as params
+    navigation.navigate('ViewHistory', {selectedItem: item});
+  };
   
         
   
   
   return (
+    
     <View style={styles.container}>
-    <View style={styles.row}>
-     <Text style={{left:12, marginTop:50,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
+     
+      <View style={styles.row}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <ImageBackground  style={{height:30,width:30,top:59,right:45}} source={require("../assets/left.png")}></ImageBackground>
+      </TouchableOpacity>
+    
+    <Text style={{right:70, marginTop:50,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
+   </View>
+
+   <View >
+ 
+
+          <View >
+          <FlatList
+                  data={data}
+                  keyExtractor={(item, index) => index.toString()}
+                  
+                  renderItem={({ item,index }) => (
+                    <TouchableOpacity onPress={()=>handleHistoryClick(item)}>
+                    <View style={styles.cardh}>
+                    <View style={{ marginBottom: 10 }}>
+                    <Text style={{fontWeight:'bold'}}>{index + 1} : {new Date(item.timestamp.seconds * 1000).toLocaleDateString()}</Text>
+                      <View style={{marginTop:10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+                        <Image source={{ uri: item.file1 }} style={{ width: 70, height: 70 }} />
+                        <Image source={{ uri: item.file2 }} style={{ width: 70, height: 70 }} />
+                        <Image source={{ uri: item.file3 }} style={{ width: 70, height: 70 }} />
+                      </View>
+                      
+                      
+                     
+                      
+                    </View>
+                    </View>
+                    </TouchableOpacity>
+                  )}
+              />
+          </View>
+    
     </View>
-  <ScrollView> 
-  
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
-  </ScrollView>
+   
+
   </View>
+  //   <View style={styles.container}>
+  //   <View style={styles.row}>
+  //    <Text style={{left:12, marginTop:50,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
+  //   </View>
+  // <ScrollView> 
+  
+  //     <FlatList
+      
+  //       data={data}
+  //       renderItem={renderItem}
+  //       keyExtractor={(item) => item.id}
+  //     />
+  // </ScrollView>
+  // </View>
   
   )
 }
@@ -208,13 +252,12 @@ const styles = StyleSheet.create({
    },
          
     cardh: {
-      
-      width: 660,
       overflow: "hidden",
-      margin: 9,
+      margin: 13,
       top: 0,
-      right: 7,
-      width: 367, // Set your desired width
+      left:8,
+      justifyContent: 'center',
+      width: 350, // Set your desired width
   
       backgroundColor: '#e1e4ed', // Set your desired background color
       padding: 16,
