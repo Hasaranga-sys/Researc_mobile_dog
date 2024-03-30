@@ -94,9 +94,9 @@ export default function Home() {
           <TouchableOpacity onPress={handleSignOut} style={styles.dropdownButton}>
             <Text>  Sign Out</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.dropdownButton}>
+          {/* <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.dropdownButton}>
             <Text>View Profile</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           
          
         </View>
