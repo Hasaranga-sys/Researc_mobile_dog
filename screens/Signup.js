@@ -54,10 +54,24 @@ const Signup = () => {
     const [isChecked, setChecked] = useState(false);
 
     const handleSubmit = async ()=>{
-        if(email && password && displayName){
+        if(email && password && address && firstName && lastName){
           try {
             const userCredential = await createUserWithEmailAndPassword(auth,email, password);
-            await updateProfile(userCredential.user, { displayName });
+            
+            const userData = {
+              uid:userCredential.user.uid,
+              email:email,
+              displayName: displayName,
+              address: address,
+              firstName: firstName,
+              lastName: lastName
+          };
+          console.log("DATABSE",db);
+          console.log("user data",user);
+
+          // await firestore.collection('Registerd_User').doc(userCredential.user.uid).set(userData);
+          const registerCollectionRef = collection(db,'Registerd_User');
+          await setDoc(doc(registerCollectionRef,userCredential.user.uid),userData);
 
             console.log('User created successfully!');
                   ToastAndroid.show(
@@ -119,20 +133,35 @@ const Signup = () => {
     // };
   return (
     <ScrollView style={styles.main_container}>
-    <View style={{ marginBottom: 30 }}>
+    <View style={{ marginBottom: 50 }}>
     <Text style={styles.header_text}>Sign Up!!</Text>
     
     <ImageBackground style={{height:200, width:200, left:80,top:20}} source={require("../assets/mother.png")}></ImageBackground>
     </View>
     <View style={styles.cardh}>
-    <Text style={styles.input_lable}>User Name</Text>
+    <Text style={styles.input_lable}>First Name</Text>
     <TextInput
       style={styles.input_text}
-      placeholder="Enter User Name"
-      value={displayName}
-      onChangeText={value=>setDisplayName(value)}
+      placeholder="Enter First Name"
+      value={firstName}
+      onChangeText={value=>setFirstName(value)}
     ></TextInput>
 
+    <Text style={styles.input_lable}>Last Name</Text>
+    <TextInput
+      style={styles.input_text}
+      placeholder="Enter Last Name"
+      value={lastName}
+      onChangeText={value=>setLastName(value)}
+    ></TextInput>
+
+    <Text style={styles.input_lable}>Address</Text>
+    <TextInput
+      style={styles.input_text}
+      placeholder="Enter Address"
+      value={address}
+      onChangeText={value=>setAddress(value)}
+    ></TextInput>
   
     <Text style={styles.input_lable}>Email</Text>
     <TextInput
@@ -179,7 +208,8 @@ const Signup = () => {
 
 const styles = StyleSheet.create({
   main_container: {
-    flex: 1,
+    height:"auto",
+    flex: 2,
     top: 20,
     padding: 15,
   },
@@ -208,7 +238,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",    
     justifyContent: 'center',
     width: "100%", // Set your desired width
-
+    marginBottom:50,
     backgroundColor: '#e1e4ed', // Set your desired background color
     padding: 16,
     borderRadius:25,
