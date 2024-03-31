@@ -1,5 +1,5 @@
 
-import { ScrollView, StyleSheet, Text, View, FlatList,TouchableOpacity,Image,Alert } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, ImageBackground,TouchableOpacity,Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { getDocs, collection, query, where } from 'firebase/firestore';
@@ -10,7 +10,11 @@ import { auth } from '../firebase/firebase-config';
 import MapView, {Callout,Marker, PROVIDER_GOOGLE} from 'react-native-maps'
 import { useNavigation } from "@react-navigation/native";
 import { markers } from '../assets/marker';
-import * as Permissions from 'expo-location';
+import { Picker } from '@react-native-picker/picker';
+import * as Permissions from 'expo-permissions';
+import {locations } from '../assets/locations'
+import { ListItem } from '@rneui/themed';
+
 
 const INITIAL_REGION = {
     latitude:37.33,
@@ -19,12 +23,31 @@ const INITIAL_REGION = {
     longitudeDelta:2,
 };
 
+
 const Map = () => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [expanded, setExpanded] = React.useState(false);
+    
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
 
     const mapRef = useRef(null);
+    
     const navigation = useNavigation();
+
+    // const locations = [
+    //   { label: 'Green Bay Stadium', latitude: 44.501344, longitude: -88.075017 },
+    //   { label: 'Eiffel Tower', latitude: 48.858944, longitude: 2.347826 },
+    //   { label: 'Statue of Liberty', latitude: 40.689241, longitude: -74.044586 },
+
+    // ];
+
+
 
     useEffect(()=>{
         (async () => {
@@ -53,16 +76,40 @@ const Map = () => {
 
     },[navigation])
 
+    // const locations = {
+    //   "GreenBayStadium": {
+    //     latitude: 6.88690105808959,
+    //     longitude: 79.90134650086635,
+    //     latitudeDelta: 0.1,
+    //     longitudeDelta: 0.1,
+    //   },
+    //   "efficl": {
+    //     latitude: 48.858944,
+    //     longitude: 2.347826,
+    //     latitudeDelta: 0.1,
+    //     longitudeDelta: 0.1,
+    //   },
+    // };
+
+  //   const focousMap = () =>{
+  //       const GreenBayStadium = {
+  //           latitude: 6.88690105808959,
+  //           longitude: 79.90134650086635,
+  //           latitudeDelta: 0.1,
+  //           longitudeDelta: 0.1}
+  //           mapRef.current.animateToRegion(GreenBayStadium);
+  //   };
+
+  //   const efficl = () =>{
+  //     const efficl = { 
+  //       latitude: 48.858944,
+  //        longitude: 2.347826,
+  //        latitudeDelta: 0.1,
+  //     longitudeDelta: 0.1}
+  //         mapRef.current.animateToRegion(efficl);
+  // };
 
 
-    const focousMap = () =>{
-        const GreenBayStadium = {
-            latitude: 6.88690105808959,
-			longitude: 79.90134650086635,
-			latitudeDelta: 0.1,
-			longitudeDelta: 0.1}
-            mapRef.current.animateToRegion(GreenBayStadium);
-    };
 
     const onRegionChange = (region) => {
         console.log(region);
@@ -71,6 +118,11 @@ const Map = () => {
     const onMarkerSelected = (marker) => {
         Alert.alert(marker.name)
     };     
+
+    const focusOnLocation = (locationKey) => {
+      const location = locations[locationKey]; // Access location data by key
+      mapRef.current.animateToRegion(location);
+    };
 
     const handleCenterOnLocation = async () => {
         if (!location) {
@@ -92,11 +144,72 @@ const Map = () => {
             <View style={styles.row}>
      <Text style={{left:9, marginTop:50, margin:0, fontSize:30,fontWeight:"900"}}>Map</Text>
     </View>
-            <TouchableOpacity onPress={focousMap}>
+   
+    {/* <View>
+      <ListItem.Accordion
+        content={
+          <ListItem.Content>
+            <ListItem.Title>Locations</ListItem.Title>
+            <ListItem.Subtitle>Tap to expand</ListItem.Subtitle>
+          </ListItem.Content>
+        }
+        isExpanded={expanded}
+        onPress={() => {
+          setExpanded(!expanded);
+        }}
+      >
+         {expanded && (
+        <>
+          {Object.keys(locations).map((locationKey) => (
+            <TouchableOpacity key={locationKey} onPress={() => focusOnLocation(locationKey)}>
+              <ListItem>
+                <ListItem.Content>
+                  <ListItem.Title>Focus on {locationKey}</ListItem.Title>
+                </ListItem.Content>
+              </ListItem>
+            </TouchableOpacity>
+          ))}
+        </>
+        )}
+      </ListItem.Accordion>
+    </View> */}
+ 
+      
+
+    <TouchableOpacity onPress={toggleDropdown}>
+      <View style={styles.rowLocation}>
+      <Text style={{fontWeight:"800"}}>Locations </Text>
+      <ImageBackground
+          style={styles.imageBackground}
+          source={require("../assets/down-arrow.png")}
+        />
+      </View>
+       
+      </TouchableOpacity>
+      {showDropdown && (
+         <View style={styles.dropdown}>
+         {Object.keys(locations).map((locationKey) => ( // Loop through location keys
+           <TouchableOpacity 
+           key={locationKey} 
+           onPress={() => {
+             focusOnLocation(locationKey);
+             toggleDropdown(); // Close the dropdown after item is pressed
+           }}
+         >
+             <Text>Focus on {locationKey}</Text>
+           </TouchableOpacity>
+         ))}
+       </View>
+      )}
+            {/* <TouchableOpacity onPress={focousMap}>
                     <View>
                         <Text>Focous</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+                 <View>
+   
+    
+  </View>
         <View style={styles.mapCard}>
         <MapView style={styles.map} provider={PROVIDER_GOOGLE }
         showsUserLocation={true}
@@ -143,15 +256,16 @@ const Map = () => {
 export default Map
 const styles = StyleSheet.create({
   container: {
+    width:"auto",
     backgroundColor: '#FFFFFF',
     padding: 15,
   },
   mapCard: {
     
     overflow: "hidden",
-    height: 678,
-    width: "100%", // Set your desired width
-    backgroundColor: '#e1e4ed', // Set your desired background color
+    height: "82%",
+    width: "100%", 
+    backgroundColor: '#FFFFFF', 
     borderRadius:30,    
   },
   
@@ -165,6 +279,38 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     marginTop: 10,
     width:"100%",
-    
+  },
+  rowLocation: {
+    flexDirection: "row",
+    justifyContent: 'flex-start',
+    marginTop: 10,
+    marginBottom:10,
+    left:5,
+    width:"100%",
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 150, // Adjust this value as per your design
+    left:17, // Adjust this value as per your design
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 10,
+  },
+  dropdownButton: {
+    padding: 10,
+  },
+  imageBackground: {
+    top:2,
+    height: 20,
+    width: 20,
   },
 });

@@ -6,7 +6,8 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
-    ImageBackground
+    ImageBackground,
+    ToastAndroid
   } from "react-native";
   import {auth} from '../firebase/firebase-config';
 
@@ -26,8 +27,10 @@ export default function Login() {
       if(email && password){
         try {
           await signInWithEmailAndPassword(auth, email, password);
+          ToastAndroid.show('Login successful', ToastAndroid.SHORT);
         } catch (error) {
           console.log(error.message);
+          ToastAndroid.show('Invalid credentials', ToastAndroid.SHORT);
         }
       }
     }

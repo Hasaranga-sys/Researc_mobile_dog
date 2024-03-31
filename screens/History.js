@@ -1,5 +1,5 @@
 
-import { ScrollView, StyleSheet, Text, View, FlatList,TouchableOpacity,Image,ImageBackground } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, FlatList,ActivityIndicator ,TouchableOpacity,Image,ImageBackground } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getDocs, collection, query, where } from 'firebase/firestore';
@@ -15,6 +15,7 @@ const History = () => {
   const [user, setUser] = useState();
   const auths = getAuth();
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log("AUTH USER", authUser);
@@ -36,6 +37,7 @@ const History = () => {
   const fetchData = async () => {
     const fetchedData = await fetchFromDatabase(user);
     setData(fetchedData);
+    setLoading(false);
     console.log("DATASET",data);
   };
  
@@ -52,6 +54,7 @@ const History = () => {
           console.log("Strt new");
           // const userMail = user.email;
           console.log("USER EMAIL",auths.currentUser.email);
+          setLoading(true);
           const allData = query(collection(db,"Original_Predic"),where("user.email", "==" , auths.currentUser.email))
           console.log("ALL data",allData);
           const dataSnapshot = await getDocs(allData)
@@ -69,16 +72,7 @@ const History = () => {
           console.log("ISEMP",dataSnapshot.empty);
 
 
-          // if (Array.isArray(docChangesArray) && docChangesArray.length > 0 && docChangesArray[0] instanceof Object) {
-          //     // The docChanges property contains an array with objects
-          //     console.log("DocChanges has objects:", docChangesArray);
-          // } else if (Array.isArray(docChangesArray) && docChangesArray.length === 0) {
-          //     // The docChanges property is an empty array
-          //     console.log("DocChanges is an empty array");
-          // } else {
-          //     // The docChanges property is not an array with objects or an empty array
-          //     console.log("DocChanges is not as expected");
-          // }
+        
 
           if(dataSnapshot.size!=0){
             console.log(dataSnapshot);
@@ -111,7 +105,8 @@ const History = () => {
 
         } catch (error) {
           console.error('Error fetching data from Firestore:', error);
-    return [];
+          setLoading(false);
+        return [];
         }
       }
   
@@ -187,7 +182,8 @@ const History = () => {
  
 
           <View >
-          <FlatList
+
+         {loading ?(<ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center', top:50 }} size="large" color="#0000ff" />):( <FlatList
                   data={data}
                   keyExtractor={(item, index) => index.toString()}
                   
@@ -209,27 +205,13 @@ const History = () => {
                     </View>
                     </TouchableOpacity>
                   )}
-              />
+              />)}
           </View>
     
     </View>
    
 
   </View>
-  //   <View style={styles.container}>
-  //   <View style={styles.row}>
-  //    <Text style={{left:12, marginTop:50,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
-  //   </View>
-  // <ScrollView> 
-  
-  //     <FlatList
-      
-  //       data={data}
-  //       renderItem={renderItem}
-  //       keyExtractor={(item) => item.id}
-  //     />
-  // </ScrollView>
-  // </View>
   
   )
 }
@@ -257,9 +239,9 @@ const styles = StyleSheet.create({
       top: 0,
       left:8,
       justifyContent: 'center',
-      width: 350, // Set your desired width
+      width: 350,
   
-      backgroundColor: '#e1e4ed', // Set your desired background color
+      backgroundColor: '#e1e4ed',
       padding: 16,
       borderRadius:25,
       zIndex: 1,
@@ -279,7 +261,7 @@ const styles = StyleSheet.create({
       
     },
     bcard: {
-      width: "130%", // Adjust the width to fit two cards in a row with some spacing
+      width: "130%", 
       height: 170,
       backgroundColor: '#e1e4ed',
       padding: 16,
@@ -289,7 +271,7 @@ const styles = StyleSheet.create({
       justifyContent:"center"
     },
     incard: {
-      width: "100%", // Adjust the width to fit two cards in a row with some spacing
+      width: "100%", 
       height: 120,
       backgroundColor: '#fefefe',
       padding: 1,

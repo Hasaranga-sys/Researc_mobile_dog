@@ -141,12 +141,16 @@ const Scan = () => {
       
           
         } else {
+          ToastAndroid.show('Error: No response or response data received.', ToastAndroid.SHORT);
           console.error("Error: No response or response data received.");
+          
         }
         
         
       } catch (error) {
+        ToastAndroid.show('Error:Server 404 ', ToastAndroid.SHORT);
         console.error('Axios error:', error);
+
       }
 
      
@@ -165,7 +169,7 @@ const Scan = () => {
   
 
 
-      showToastWithGravity()
+      // showToastWithGravity()
     } catch (error) {
       console.error('Error uploading images:', error);
     }
@@ -230,16 +234,7 @@ const Scan = () => {
       user:{
         email:auths.currentUser.email,
       },
-      // uid:uid.uid,
-      // user: {
-      //   uid: user.uid,
-      //   email: user.email,
-      //   // include other user details as needed
-      // },
-      // result:{
-      //   age:result.age,
-      //   weight:result.weight,
-      // },    
+   
       results:{
         age:settingResult.age,
         classs:settingResult.classs,
@@ -251,9 +246,17 @@ const Scan = () => {
       },       
       timestamp: new Date(),
       })
+      ToastAndroid.showWithGravity(
+        'Data stored successfully in Firestore!',
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM,
+      );
       console.log("Data stored successfully in Firestore!");
-      DetailsDisplay();
+      
     } catch (error) {
+      ToastAndroid.showWithGravity(
+        'Error storing data in Firestore', ToastAndroid.SHORT, ToastAndroid.BOTTOM,
+      );
       console.error("Error storing data in Firestore:", error);
     }
 
@@ -274,19 +277,6 @@ const Scan = () => {
       ToastAndroid.BOTTOM,
     );
   };
-
-  // const DetailsDisplay = () => {
-  //   if (!settingResult) {
-  //     return <Text>Data not available</Text>; // Handle the case where settingResult is null or undefined
-  //   }
-  
-  //   return (
-  //     <View>
-  //       <Text style={{ width: 220, fontWeight: '600', fontSize: 20 }}>Weight: {settingResult.weight}</Text>
-  //       {/* ... Other Text components */}
-  //     </View>
-  //   );
-  // };
 
  
   return (
@@ -328,33 +318,30 @@ const Scan = () => {
 
             {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
             </View>
-
-            <View style={styles.cardh}>      
-              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
-              <Text style={{ fontWeight: 'bold' }}>Age: {resultData?.age}</Text>
-              <Text style={{ fontWeight: 'bold' }}>Weight: {resultData?.weight}</Text>
-              <Text style={{ fontWeight: 'bold' }}>Confidance: {resultData?.confidence}</Text>
-              <Text style={{ fontWeight: 'bold' }}>Class: {resultData?.classs}</Text>
-              <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
-              <Text>       
-              {resultData?.control.map((step, index) => (
-                <View key={index}>
-                  <Text>{index + 1}. {step}</Text>
-                </View>         
-                ))}
-              </Text>
-              <Text style={{ fontWeight: 'bold' }}>Medicines:</Text>
-              <Text>
-              {resultData?.medicines.map((step, index) => (
-                <View style={{width:350}} key={index}>
-                  <Text>{index + 1}. {step}</Text>
-                </View>         
-                ))}
-              </Text>
-              {/* <Text style={{marginTop:10}}>Prediction Results          : {result.prediction}</Text>
-              <Text>Confidance percentage  : {result.percentage}</Text> */}
-              
+            <View>
+            {resultData && ( // Check if resultData exists
+                <View style={styles.cardh}>
+                  <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Age: {resultData?.age}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Weight: {resultData?.weight}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Confidence: {resultData?.confidence}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Class: {resultData?.classs}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
+                  <View>
+                    {resultData?.control.map((step, index) => (
+                      <Text key={index}>{index + 1}. {step}</Text>
+                    ))}
+                  </View>
+                  <Text style={{ fontWeight: 'bold' }}>Medicines:</Text>
+                  <View>
+                    {resultData?.medicines.map((step, index) => (
+                      <Text key={index}>{index + 1}. {step}</Text>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
+           
           </View>
         </ScrollView>
 
