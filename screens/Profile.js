@@ -1,5 +1,5 @@
 import React, { useState,useEffect  } from 'react';
-import { View, Text,TouchableOpacity, ActivityIndicator,TextInput, Button ,ScrollView,StyleSheet} from 'react-native';
+import { View, Text,TouchableOpacity,ImageBackground, ActivityIndicator,TextInput, Button,ToastAndroid ,ScrollView,StyleSheet} from 'react-native';
 import { getAuth,updateProfile  } from "firebase/auth";
 import {
   collection,
@@ -37,14 +37,14 @@ const Profile = () => {
           const userDocRef = doc(db, 'Registerd_User', currentUser.uid); // Updated reference creation
           const userDocSnap = await getDoc(userDocRef); // Updated data fetching using getDoc
           console.log("docsnap",userDocSnap.data());
+
           if (userDocSnap.exists) {
-            setUserData(userDocSnap.data());
-                       // Populate input fields with current user data
-                       setNewFirstName(userDocSnap.firstName);
-                       setNewAddress(userDocSnap.address);
-                       
-                       setNewLastName(userDocSnap.lastName);
-                       setEmail(userDocSnap.email)
+            const userData = userDocSnap.data();
+            setUserData(userData);
+            setNewFirstName(userData.firstName);
+            setNewLastName(userData.lastName);
+            setNewAddress(userData.address);
+            setEmail(userData.email);
           } else {
             console.log('User data not found');
           }
@@ -58,7 +58,7 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, [currentUser, db]);
+  }, [currentUser]);
 
   // useEffect(() => {
   //   const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -71,10 +71,10 @@ const Profile = () => {
   const handleUpdateProfile = async () => {
     try {
       await updateProfile(currentUser, {
-        displayName: newDisplayName,
-        // address: newAddress,
-        // firstName: newFirstName,
-        // lastName: newLastName,
+        // displayName: newDisplayName,
+        address: newAddress,
+        firstName: newFirstName,
+        lastName: newLastName,
         // Add additional fields to update as needed
       });
 
@@ -89,23 +89,27 @@ const Profile = () => {
       });
 
       // Update local state with new user data
-      setUserData({
-        ...userData,
-        // displayName: newDisplayName,
-        address: newAddress,
-        firstName: newFirstName,
-        lastName: newLastName,
-        // Add additional fields to update as needed
-      });
+      // setUserData({
+      //   ...userData,
+      //   // displayName: newDisplayName,
+      //   address: newAddress,
+      //   firstName: newFirstName,
+      //   lastName: newLastName,
+      //   // Add additional fields to update as needed
+      // });
+
+      console.log("UPDATE",setDoc);
 
       // Clear input fields
       // setNewDisplayName('');
-      setNewAddress('');
-      setNewFirstName('');
-      setNewLastName('');
-
+      setNewAddress(newAddress);
+      setNewFirstName(newFirstName);
+      setNewLastName(newLastName);
+      setEmail()
+      ToastAndroid.show('Profile updated successfully!', ToastAndroid.SHORT);
       console.log('Profile updated successfully!');
     } catch (error) {
+      ToastAndroid.show('Error updating profile', ToastAndroid.SHORT);
       console.error('Error updating profile:', error.message);
     }
   };
@@ -125,9 +129,9 @@ const Profile = () => {
 
     <ScrollView style={styles.main_container}>
     <View style={{ marginBottom: 50 }}>
-    <Text style={styles.header_text}>Sign Up!!</Text>
-    
-    {/* <ImageBackground style={{height:200, width:200, left:80,top:20}} source={require("../assets/mother.png")}></ImageBackground> */}
+    <Text style={styles.header_text}>Profile Details</Text>
+    <ImageBackground style={{height:200, width:200, left:80,top:20}} source={require("../assets/woman.png")}></ImageBackground>
+
     </View>
     <View style={styles.container}>
       
@@ -135,63 +139,49 @@ const Profile = () => {
 
         <View>
 
-                          <View style={styles.cardh}>
-                          <Text style={styles.input_lable}>First Name</Text>
-                          {/* <TextInput
-                            style={styles.input_text}
-                            placeholder="Enter First Name"
-                            value={newFirstName}
-                            onChangeText={setNewFirstName}
-                          ></TextInput>
+            <View style={styles.cardh}>
+            <Text style={styles.input_lable}>First Name</Text>
+            <TextInput
+              style={styles.input_text}
+              placeholder="Enter First Name"
+              value={newFirstName}
+              onChangeText={setNewFirstName}
+            ></TextInput>
 
-                          <Text style={styles.input_lable}>Last Name</Text>
-                          <TextInput
-                            style={styles.input_text}
-                            placeholder="Enter Last Name"
-                            value={newLastName}
-                            onChangeText={setNewLastName}
-                          ></TextInput>
+            <Text style={styles.input_lable}>Last Name</Text>
+            <TextInput
+              style={styles.input_text}
+              placeholder="Enter Last Name"
+              value={newLastName}
+              onChangeText={setNewLastName}
+            ></TextInput>
 
-                          <Text style={styles.input_lable}>Address</Text>
-                          <TextInput
-                            style={styles.input_text}
-                            placeholder="Enter Address"
-                            value={newAddress}
-                            onChangeText={setNewAddress}
-                          ></TextInput>
-
-                          <Text style={styles.input_lable}>Email</Text>
-                          <TextInput
-                            style={styles.input_text}
-                            keyboardType="email-address"
-                            placeholder="Enter Email"
-                            value={email}
-                            
-                          //   onChangeText={(val) => handleChangeText("email", val)}
-                          ></TextInput> */}
-
-
-                          <Button title="Update Profile" onPress={handleUpdateProfile} />
+            <Text style={styles.input_lable}>Address</Text>
+            <TextInput
+              style={styles.input_text}
+              placeholder="Enter Address"
+              value={newAddress}
+              onChangeText={setNewAddress}
+            ></TextInput>
 {/* 
-                          <TouchableOpacity
-                            style={{
-                              alignContent: "center",
-                              marginTop: 20,
-                              backgroundColor: "#0D47A1",
-                              height: 45,
-                              justifyContent: "center",
-                              alignItems: "center",
-                              borderRadius: 7,
-                            }}
-                            // onPress={() => signin()}
-                            onPress={handleSubmit}
-                            underlayColor="#0084fffa"
-                          >
-                            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
-                              SIGN UP
-                            </Text>
-                          </TouchableOpacity> */}
-                          </View> 
+            <Text style={styles.input_lable}>Email</Text>
+            <TextInput
+              style={styles.input_text}
+              keyboardType="email-address"
+              placeholder="Enter Email"
+              value={email}
+              editable={false}
+            ></TextInput> */}
+
+          <TouchableOpacity onPress={handleUpdateProfile}>
+               <View style={styles.button}>
+                  <Text style={styles.buttonText}>Update Profile</Text>
+               </View>
+          </TouchableOpacity>
+           
+  
+
+            </View> 
 
 
 
@@ -202,137 +192,13 @@ const Profile = () => {
             onChangeText={setNewDisplayName}
             style={styles.input}
           /> */}
-          <Text>Address:</Text>
-          <TextInput
-            value={newAddress}
-            onChangeText={setNewAddress}
-            style={styles.input}
-          />
-          <Text>First Name:</Text>
-          <TextInput
-            value={newFirstName}
-            onChangeText={setNewFirstName}
-            style={styles.input}
-          />
-          <Text>Last Name:</Text>
-          <TextInput
-            value={newLastName}
-            onChangeText={setNewLastName}
-            style={styles.input}
-          />
-          <Button title="Update Profile" onPress={handleUpdateProfile} />
+ 
         </View>
       )}
     </View>
   
     
   </ScrollView>
-//neww
-
-
-/** <View style={styles.cardh}>
-<Text style={styles.input_lable}>First Name</Text>
-<TextInput
-  style={styles.input_text}
-  placeholder="Enter First Name"
-  value={firstName}
-  onChangeText={value=>setFirstName(value)}
-></TextInput>
-
-<Text style={styles.input_lable}>Last Name</Text>
-<TextInput
-  style={styles.input_text}
-  placeholder="Enter Last Name"
-  value={lastName}
-  onChangeText={value=>setLastName(value)}
-></TextInput>
-
-<Text style={styles.input_lable}>Address</Text>
-<TextInput
-  style={styles.input_text}
-  placeholder="Enter Address"
-  value={address}
-  onChangeText={value=>setAddress(value)}
-></TextInput>
-
-<Text style={styles.input_lable}>Email</Text>
-<TextInput
-  style={styles.input_text}
-  keyboardType="email-address"
-  placeholder="Enter Email"
-  value={email}
-  onChangeText={value=>setEmail(value)}
-//   onChangeText={(val) => handleChangeText("email", val)}
-></TextInput>
-<Text style={styles.input_lable}>Password</Text>
-<TextInput
-  style={styles.input_text}
-  secureTextEntry={true}
-  placeholder="Enter password"
-  value={password}
-  onChangeText={value=>setPassword(value)}
-//   onChangeText={(val) => handleChangeText("password", val)}
-></TextInput>
-
-<TouchableOpacity
-  style={{
-    alignContent: "center",
-    marginTop: 20,
-    backgroundColor: "#0D47A1",
-    height: 45,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 7,
-  }}
-  // onPress={() => signin()}
-  onPress={handleSubmit}
-  underlayColor="#0084fffa"
->
-  <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
-    SIGN UP
-  </Text>
-</TouchableOpacity>
-</View> */
-//olddd
-
-//     <ScrollView style={styles.main_container}>
-// <View>
-//       {/* <h1>Profile Page</h1> */}
-//       {userData ? (
-//         <View>
-//           <Text>Display Name: {userData.displayName}</Text>
-//           {/* <p>Email: {currentUser.email}</p> Access email from currentUser */}
-//           <Text>Address: {userData.address}</Text>
-//           <Text>First Name: {userData.firstName}</Text>
-//           <Text>Last Name: {userData.lastName}</Text>
-//           {/* You can display other user information here */}
-//         </View>
-//       ) : (
-//         <Text>Loading...</Text>
-//       )}
-//     </View>
-//       {/* /display name  */}
-//      <View style={styles.container}>
-//       {user ? (
-//         <>
-//           <Text style={styles.text}>Display Name: {user.displayName}</Text>
-//           <TextInput
-//             style={styles.input}
-//             value={newDisplayName}
-//             onChangeText={setNewDisplayName}
-//             placeholder="Enter new display name"
-//           />
-//           <Button title="Update Display Name" onPress={handleDisplayNameUpdate} />
-//           <Text style={styles.text}>Email: {user.email}</Text>
-//         </>
-//       ) : (
-//         <Text>You are not currently signed in.</Text>
-//       )}
-//     </View>
-
-   
-    
-//   </ScrollView>
   )
 }
 
@@ -375,5 +241,19 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius:25,
   
+  }, 
+   button: {
+    marginTop:8,
+    backgroundColor: '#4CAF50', // Adjust background color
+    borderRadius: 25, // Adjust curvature
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white', // Adjust text color
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

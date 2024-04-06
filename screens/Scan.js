@@ -2,6 +2,8 @@ import React, { useState,useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 // import firebase from 'firebase/app';
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from 'uuid'
 
 
 import {
@@ -38,10 +40,14 @@ import { storage } from '../firebase/firebase-config'; // Import your Firebase s
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
 import {getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config'; 
+
+
 const Scan = () => {
   const [file1, setImage1] = useState(null);
   const [file2, setImage2] = useState(null);
   const [file3, setImage3] = useState(null);
+  const [age, setAge] = useState('');
+  const [weight, setWeight] = useState('');
   const [user, setUser] = useState();
   const [uid,setUid] = useState();
   const [result, setResult] = useState()
@@ -87,7 +93,16 @@ const Scan = () => {
     if (!file1 || !file2 || !file3) {
       alert("Error: All three files are required.");
       return;
-  }
+    }else if(!age){
+      alert("Error: Please Enter Age");
+      return;
+    }else if(!weight){
+      alert("Error: Please Enter Weight");
+      return;
+    }
+
+
+
     try {
       const formData = new FormData();
       formData.append('file1', {
@@ -105,11 +120,15 @@ const Scan = () => {
         name: 'file3.jpg',
         type: 'image/jpg',
       });
+
+      formData.append('age', age); 
+      formData.append('weight', weight); 
+
       console.log("before axios");
       try {
         console.log("try block");
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('http://192.168.95.46:8081/second', formData, {
+        const response = await axios.post('http://192.168.182.46:8081/second', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -175,51 +194,207 @@ const Scan = () => {
     }
   };
 
-  const uploadImage = async (file1,file2,file3,settingResult) => {
-    console.log("settingRESULTLOG",settingResult);
-      console.log("UPLOAD IMAGE LOG", file1,file2,file3);
-      const response = await fetch(file1,file2,file3);
-      const blob = await response.blob();
+  //new not working
+//   const uploadImage = async (file1, settingResult) => {
+//     const upoloadingimage = file1;
+//     const storagex = getStorage();
+//     const fileName = "Sam";
+//     console.log("FILENAME",upoloadingimage);
+//     try {
+//         const storageRef = ref(storagex, `images/${uuidv4() + "_" + fileName}`);
+//         console.log("FILE !",file1);
+//         console.log("STORAGE REF:",storageRef);
+//         const uploadTask = uploadBytesResumable(
+//           storageRef,
+//           dataURLtoBlob(upoloadingimage)
+//         );
 
-      const storageRef = ref(storage, `images/${blob.name}`)
-      const upload = uploadBytesResumable(storageRef, blob);
+//         uploadTask.on(
+//           "state_changed",
+//           (snapshot) => {
+//             const progress =
+//               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+//             console.log("Upload is " + progress + "% done");
+//           },
+//           (error) => {
+//             console.log(error);
+//           },
+//           () => {
+//             getDownloadURL(uploadTask.snapshot.ref)
+//               .then((url) => {
+//                 console.log("File uploaded successfully");
+//                 console.log(url);
+//                 storeDataInFirestore(url,settingResult);
+//               })
+//               .catch((error) => {
+//                 console.log(error);
+//               });
+//           }
+//         );
+//         //gptm
+//         // console.log("settingRESULTLOG", settingResult);
+//         // console.log("UPLOAD IMAGE LOG", file1, file2, file3);
 
-      upload.on("state_changed",(snapshot) => {
-        const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                  console.log("Upload is " + progress + "% done");
-      },(error) => {
-        console.log(error);
-      },() => {
-        getDownloadURL(upload.snapshot.ref)
-          .then((url) => {
-            console.log("File uploaded successfully");
-            console.log(url);
-            // firebaesDocumentUpload(url);
-            console.log("BEFORE FIRESTORE CALL");
-            console.log("RRRRRRR",result);
+//         // // Create Blobs from files
+//         // const blob1 = await getFileBlob(file1);
+//         // const blob2 = await getFileBlob(file2);
+//         // const blob3 = await getFileBlob(file3);
+
+//         // // Get storage references
+//         // const storageRef1 = ref(storage, `images/${file1.name}`);
+//         // const storageRef2 = ref(storage, `images/${file2.name}`);
+//         // const storageRef3 = ref(storage, `images/${file3.name}`);
+
+//         // // Upload files to Firebase Storage
+//         // await Promise.all([
+//         //     uploadFile(storageRef1, blob1),
+//         //     uploadFile(storageRef2, blob2),
+//         //     uploadFile(storageRef3, blob3)
+//         // ]);
+
+//         // console.log("Files uploaded successfully");
+
+//         // Now you can store data in Firestore
+//         // storeDataInFirestore(file1, file2, file3, settingResult);
+//     } catch (error) {
+//         console.error("Error uploading files:", error);
+//     }
+// };
+
+
+  //old working
+  // const uploadImage = async (file1,file2,file3,settingResult) => {
+  //   console.log("settingRESULTLOG",settingResult);
+  //     console.log("UPLOAD IMAGE LOG", file1,file2,file3);
+  //     const response = await fetch(file1,file2,file3);
+  //     const blob = await response.blob();
+  //     console.log("BLOB",blob);
+     
+  //     const name = blob._data.name;
+  //     console.log("BLOB NAME", name);
+
+  //     const storageRef = ref(storage, `images/${blob._data.name}`)
+  //     const upload = uploadBytesResumable(storageRef, blob);
+
+  //     upload.on("state_changed",(snapshot) => {
+  //       const progress =
+  //                   (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+  //                 console.log("Upload is " + progress + "% done");
+  //     },(error) => {
+  //       console.log(error);
+  //     },() => {
+  //       getDownloadURL(upload.snapshot.ref)
+  //         .then((url) => {
+  //           console.log("File uploaded successfully");
+  //           console.log(url);
+  //           // firebaesDocumentUpload(url);
+  //           console.log("BEFORE FIRESTORE CALL");
+  //           console.log("RRRRRRR",result);
             
-            // storeDataInFirestore(file1,file2,file3,result,user)
+  //           // storeDataInFirestore(file1,file2,file3,result,user)
            
-              console.log("BEFORE CALL", settingResult);
-              storeDataInFirestore(file1, file2, file3, settingResult);
+  //             console.log("BEFORE CALL", settingResult);
+  //             storeDataInFirestore(url, file2, file3, settingResult);
            
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
+  //         })
+  //         .catch((error) => {
+  //           console.log(error);
+  //         });
+  //     }
       
-      )
+  //     )
+
+  // }
+
+  //new try for 3 files
+  const uploadImage = async (file1,file2,file3,settingResult) => {
+                              console.log("settingRESULTLOG",settingResult);
+                              console.log("UPLOAD IMAGE LOG", file1,file2,file3);                                
+                            
+                                              // const storageRef = ref(storage, `images/${blob._data.name}`)
+                                    // const upload = uploadBytesResumable(storageRef, blob);     
+                              
+                              
+                              const response = await fetch(file1);
+                              const blob = await response.blob();
+
+                              const storageRef1 = ref(storage, `images/${blob._data.name}`);
+                              const upload = uploadBytesResumable(storageRef1, blob);
+                              console.log("UPLAOD !",upload);
+                              let downloadURL1;
+
+                              upload.on("state_changed", (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                console.log("Upload is " + progress + "% done");
+                            });
+
+                            upload.then(async(snapshot) => {
+                              console.log("COMES DOWN TO UPLOAD ONE");      
+                              downloadURL1 = await getDownloadURL(snapshot.ref);
+                              console.log("downloadURL 1q",downloadURL1 );
+
+
+                                    // Upload file2
+                                  const response2 = await fetch(file2);
+                                  const blob2 = await response2.blob();
+
+                                  const storageRef2 = ref(storage, `images/${blob2._data.name}`);
+                                  const upload2 = uploadBytesResumable(storageRef2, blob2);
+                                  let downloadURL2;
+
+                                  upload2.on("state_changed", (snapshot) => {
+                                      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                      console.log("Upload is " + progress + "% done");
+                                  });
+
+                                      upload2.then(async(snapshot2) => {
+                                        console.log("COMES DOWN TO UPLOAD TWO");   
+                                        downloadURL2 = await getDownloadURL(snapshot2.ref);
+                                        console.log("downloadURL 2q",downloadURL2 );
+
+                                                        // Upload file3
+                                                        const response3 = await fetch(file3);
+                                                        const blob3 = await response3.blob();
+                      
+                                                        const storageRef3 = ref(storage, `images/${blob3._data.name}`);
+                                                        const upload3 = uploadBytesResumable(storageRef3, blob3);
+                                                  let downloadURL3;
+
+                                                  upload3.on("state_changed", (snapshot) => {
+                                                      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                                      console.log("Upload is " + progress + "% done");
+                                                  });
+
+                                                    upload3.then(async(snapshot3)=>{
+                                                      downloadURL3 = await getDownloadURL(snapshot3.ref);
+                                                      console.log("COMES TO THE #RD ONE");
+
+                                                      console.log("All files uploaded successfully");
+                                                        console.log("Download URLs:", downloadURL1, downloadURL2, downloadURL3);
+
+                                                        // Once all files are uploaded, pass downloadURLs as separate parameters to storeDataInFirestore
+                                                        storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
+                                                    })
+
+
+
+
+                                      })
+                            })
+
+    
+
 
   }
   //sample method
 
 
-  const storeDataInFirestore = async (file1,file2,file3, settingResult) => {
-    console.log("Image uri and text input IN FIRESTORE CALL : ",file1,file2,file3, settingResult);
+  const storeDataInFirestore = async (file1Url,file2Url, file3Url, settingResult) => {
+    console.log("Image uri and text input IN FIRESTORE CALL : 1",file1Url);
+    console.log("Image uri and text input IN FIRESTORE CALL : 2",file2Url);
+    console.log("Image uri and text input IN FIRESTORE CALL : 3",file3Url);
 
-    console.log("autho",auths.currentUser.email);
+    console.log("autho",auth.currentUser.email);
     
     console.log("udi-ages",settingResult);
     setResultData(settingResult);
@@ -228,9 +403,10 @@ const Scan = () => {
     try {
       const predictionsCollectionRef = collection(db,'Original_Predic')
       await setDoc(doc(predictionsCollectionRef),{
-      file1 : file1,
-      file2 : file2,
-      file3 : file3,
+      file1 : file1Url,
+      file2 : file2Url,
+      file3 : file3Url,
+
       user:{
         email:auths.currentUser.email,
       },
@@ -310,11 +486,37 @@ const Scan = () => {
                 <Text style={styles.imageButton}>Select Image 3</Text>
               </TouchableOpacity>    
               {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
-            </View> 
-            <View style={{marginTop:20}} >
-              
-            <Button  title="Upload Images" onPress={handleUpload} />
             </View>
+
+                <View >
+                  <View style={styles.rowInput}>
+                      <Text style={styles.inputLabel}>Enter Age        :</Text>
+                          <TextInput
+                            style={styles.input}
+                            placeholder="Enter Age"
+                            keyboardType="numeric"
+                            value={age}
+                            onChangeText={setAge}
+                          />
+                  </View>
+                  <View style={styles.rowInput}>
+                      <Text style={styles.inputLabel}>Enter Weight  :</Text>
+                          <TextInput
+                              style={styles.input}
+                              placeholder="Enter Weight"
+                              keyboardType="numeric"
+                              value={weight}
+                              onChangeText={setWeight}
+                            />
+                  </View>
+              </View> 
+
+              <TouchableOpacity onPress={handleUpload}>
+               <View style={styles.button}>
+                  <Text style={styles.buttonText}>Submit</Text>
+               </View>
+          </TouchableOpacity>
+          
 
             {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
             </View>
@@ -322,11 +524,11 @@ const Scan = () => {
             {resultData && ( // Check if resultData exists
                 <View style={styles.cardh}>
                   <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
-                  <Text style={{ fontWeight: 'bold' }}>Age: {resultData?.age}</Text>
-                  <Text style={{ fontWeight: 'bold' }}>Weight: {resultData?.weight}</Text>
-                  <Text style={{ fontWeight: 'bold' }}>Confidence: {resultData?.confidence}</Text>
-                  <Text style={{ fontWeight: 'bold' }}>Class: {resultData?.classs}</Text>
-                  <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Age                 : {resultData?.age}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Weight            : {resultData?.weight}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Confidence     : {resultData?.confidence}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Class               : {resultData?.classs}</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Control Steps :</Text>
                   <View>
                     {resultData?.control.map((step, index) => (
                       <Text key={index}>{index + 1}. {step}</Text>
@@ -362,6 +564,12 @@ const styles = StyleSheet.create({
 imageButton:{
   padding:5,
  width:160, fontWeight:"600", fontSize:20
+},
+inputLabel:{
+padding:3,
+ width:120,
+ fontWeight:"600",
+  fontSize:13
 },
 submitButton:{
 padding:5,
@@ -401,7 +609,11 @@ padding:5,
     justifyContent: "space-around",
     marginTop: 10,
     width:"100%",
-    
+  },
+  rowInput: {
+    flexDirection: "row",
+    marginTop: 10,
+    width:"100%",
   },
   bcard: {
     width: "130%", // Adjust the width to fit two cards in a row with some spacing
@@ -427,5 +639,27 @@ padding:5,
   },
   buttonText:{
     top:3,fontWeight:"700"
-  }
+  },
+  input: {
+    height: 40,
+    width:"60%",
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  button: {
+    marginTop:8,
+    backgroundColor: '#4CAF50', // Adjust background color
+    borderRadius: 25, // Adjust curvature
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white', // Adjust text color
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

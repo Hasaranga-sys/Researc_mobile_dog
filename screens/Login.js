@@ -66,23 +66,10 @@ export default function Login() {
             onChangeText={value=>setPassword(value)}
           ></TextInput>
 
-          <TouchableOpacity
-            style={{
-              alignContent: "center",
-              marginTop: 35,
-              backgroundColor: "#0D47A1",
-              height: 45,
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 7,
-            }}
-            // onPress={() => signin()}
-            onPress={handleSubmit}
-            underlayColor="#0084fffa"
-          >
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
-              Login
-            </Text>
+          <TouchableOpacity onPress={handleSubmit}>
+               <View style={styles.button}>
+                  <Text style={styles.buttonText}>Log In</Text>
+               </View>
           </TouchableOpacity>
           <View
             style={{
@@ -162,6 +149,20 @@ const styles = StyleSheet.create({
       padding: 16,
       borderRadius:25,
     
+    },
+    button: {
+      marginTop:15,
+      backgroundColor: '#4CAF50', // Adjust background color
+      borderRadius: 25, // Adjust curvature
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonText: {
+      color: 'white', // Adjust text color
+      fontSize: 16,
+      fontWeight: 'bold',
     },
   });
   

@@ -78,16 +78,7 @@ const Signup = () => {
                     user.username + " User Created Succesfully!",
                     ToastAndroid.SHORT
                   );
-          //  console.log("Log");
-          //  const registerCollectionRef = collection(db,'Registerd_User')
-          //  console.log("First name",firstName);
-          //  console.log("user emaik", user.email)
-          //  await setDoc(doc(registerCollectionRef),{
-          //   firstName:firstName,
-          //   lastName:lastName,
-          //   address,
-          //   email:email
-          //  })
+   
            console.log("Data stored successfully in Firestore!");
           } catch (error) {
             console.log("Error storing data in Firestore:",error.message);
@@ -99,38 +90,7 @@ const Signup = () => {
       setUser((prevState) => ({ ...prevState, [user]: value }));
     };
   
-    // const signin = async () => {
-    //   const auth = getAuth();
-    //   await createUserWithEmailAndPassword(auth, user.email, user.password)
-    //     .then(() => {
-    //       setDoc(doc(db, "RegisteredUser", auth.currentUser.uid), {
-    //         uid: auth.currentUser.uid,
-    //         role: "Freelancer",
-    //         email: user.email,
-    //         username: user.username,
-    //       });
-    //       // setDoc(doc(db, "staff", auth.currentUser.uid), {
-    //       //   staff_service_id: staff.staff_service_id,
-    //       //   staff_name: staff.staff_name,
-    //       //   staff_deparment: data[selected].value,
-    //       //   staff_phone: staff.staff_phone,
-    //       //   uid: auth.currentUser.uid,
-    //       //   role: "staff",
-    //       //   email: staff.email,
-    //       //   username: staff.username,
-    //       // });
-    //     })
-    //     .catch((error) => {
-    //       const errorCode = error.code;
-    //       const errorMessage = error.message;
-    //       alert(errorCode, errorMessage);
-    //     });
-  
-    //   ToastAndroid.show(
-    //     user.username + " Request sent successfully!",
-    //     ToastAndroid.SHORT
-    //   );
-    // };
+
   return (
     <ScrollView style={styles.main_container}>
     <View style={{ marginBottom: 50 }}>
@@ -182,7 +142,14 @@ const Signup = () => {
     //   onChangeText={(val) => handleChangeText("password", val)}
     ></TextInput>
 
-    <TouchableOpacity
+
+    <TouchableOpacity onPress={handleSubmit}>
+            <View style={styles.button}>
+              <Text style={styles.buttonText}>Sign Up</Text>
+            </View>
+      </TouchableOpacity>
+
+    {/* <TouchableOpacity
       style={{
         alignContent: "center",
         marginTop: 20,
@@ -199,7 +166,7 @@ const Signup = () => {
       <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
         SIGN UP
       </Text>
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     </View>
     
   </ScrollView>
@@ -243,6 +210,20 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius:25,
   
+  },
+  button: {
+    marginTop:8,
+    backgroundColor: '#4CAF50', // Adjust background color
+    borderRadius: 25, // Adjust curvature
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white', // Adjust text color
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

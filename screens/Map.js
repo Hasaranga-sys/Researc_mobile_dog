@@ -3,8 +3,8 @@ import { ScrollView, StyleSheet, Text, View, ImageBackground,TouchableOpacity,Al
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { getDocs, collection, query, where } from 'firebase/firestore';
-import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
-import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
+import { storage } from '../firebase/firebase-config';
+import { db } from '../firebase/firebase-config'; 
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config';
 import MapView, {Callout,Marker, PROVIDER_GOOGLE} from 'react-native-maps'
@@ -14,6 +14,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as Permissions from 'expo-permissions';
 import {locations } from '../assets/locations'
 import { ListItem } from '@rneui/themed';
+import * as Location from 'expo-location'
 
 
 const INITIAL_REGION = {
@@ -40,30 +41,23 @@ const Map = () => {
     
     const navigation = useNavigation();
 
-    // const locations = [
-    //   { label: 'Green Bay Stadium', latitude: 44.501344, longitude: -88.075017 },
-    //   { label: 'Eiffel Tower', latitude: 48.858944, longitude: 2.347826 },
-    //   { label: 'Statue of Liberty', latitude: 40.689241, longitude: -74.044586 },
-
-    // ];
-
 
 
     useEffect(()=>{
         (async () => {
-            let { status } = await Permissions.askAsync(Permissions.LOCATION);
+            let { status } = await Location.requestBackgroundPermissionsAsync();
             if (status == 'granted') {
                 const locationData = await Location.getCurrentPositionAsync({});
                 setLocation(locationData.coords);
-                navigation.setOptions({
-                    headerRight: ()=>(
-                        <TouchableOpacity onPress={focousMap}>
-                            <View style={{padding:10}}>
-                                <Text>Focous</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )
-                })
+                // navigation.setOptions({
+                //     headerRight: ()=>(
+                //         <TouchableOpacity onPress={focousMap}>
+                //             <View style={{padding:10}}>
+                //                 <Text>Focous</Text>
+                //             </View>
+                //         </TouchableOpacity>
+                //     )
+                // })
               setErrorMsg('Permission to access location was denied');
              
             }else {
@@ -76,38 +70,17 @@ const Map = () => {
 
     },[navigation])
 
-    // const locations = {
-    //   "GreenBayStadium": {
-    //     latitude: 6.88690105808959,
-    //     longitude: 79.90134650086635,
-    //     latitudeDelta: 0.1,
-    //     longitudeDelta: 0.1,
-    //   },
-    //   "efficl": {
-    //     latitude: 48.858944,
-    //     longitude: 2.347826,
-    //     latitudeDelta: 0.1,
-    //     longitudeDelta: 0.1,
-    //   },
+   
+
+    // const focousMap = () =>{
+    //     const GreenBayStadium = {
+    //         latitude: 6.88690105808959,
+    //         longitude: 79.90134650086635,
+    //         latitudeDelta: 0.1,
+    //         longitudeDelta: 0.1}
+    //         mapRef.current.animateToRegion(GreenBayStadium);
     // };
 
-  //   const focousMap = () =>{
-  //       const GreenBayStadium = {
-  //           latitude: 6.88690105808959,
-  //           longitude: 79.90134650086635,
-  //           latitudeDelta: 0.1,
-  //           longitudeDelta: 0.1}
-  //           mapRef.current.animateToRegion(GreenBayStadium);
-  //   };
-
-  //   const efficl = () =>{
-  //     const efficl = { 
-  //       latitude: 48.858944,
-  //        longitude: 2.347826,
-  //        latitudeDelta: 0.1,
-  //     longitudeDelta: 0.1}
-  //         mapRef.current.animateToRegion(efficl);
-  // };
 
 
 
@@ -178,7 +151,7 @@ const Map = () => {
 
     <TouchableOpacity onPress={toggleDropdown}>
       <View style={styles.rowLocation}>
-      <Text style={{fontWeight:"800"}}>Locations </Text>
+      <Text style={{fontWeight:"800",width:70}} onPress={toggleDropdown}>Locations </Text>
       <ImageBackground
           style={styles.imageBackground}
           source={require("../assets/down-arrow.png")}

@@ -175,15 +175,19 @@ const History = () => {
       <ImageBackground  style={{height:30,width:30,top:59,right:45}} source={require("../assets/left.png")}></ImageBackground>
       </TouchableOpacity>
     
-    <Text style={{right:70, marginTop:50,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
+    <Text style={{right:75, marginTop:54,marginBottom:20, margin:0, fontSize:30,fontWeight:"900"}}>History</Text>
    </View>
 
-   <View >
- 
+   <View>
+          <View style={{height:"90%"}} >
 
-          <View >
-
-         {loading ?(<ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center', top:50 }} size="large" color="#0000ff" />):( <FlatList
+         {loading ?(<ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center', top:50 }} size="large" color="#0000ff" />)
+         : data == null || data.length === 0 ?
+         (<View style={styles.containerImage}>
+           <ImageBackground style={styles.imageBackground} source={require("../assets/empty-cart.png")}></ImageBackground>
+          <Text style={styles.dataCheckText}>No data Available !!!</Text>
+          </View>)
+         :( <FlatList
                   data={data}
                   keyExtractor={(item, index) => index.toString()}
                   
@@ -197,10 +201,6 @@ const History = () => {
                         <Image source={{ uri: item.file2 }} style={{ width: 70, height: 70 }} />
                         <Image source={{ uri: item.file3 }} style={{ width: 70, height: 70 }} />
                       </View>
-                      
-                      
-                     
-                      
                     </View>
                     </View>
                     </TouchableOpacity>
@@ -218,6 +218,9 @@ const History = () => {
 
 export default History
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   imageButton:{
     padding:5,
    width:160, fontWeight:"600", fontSize:20
@@ -312,4 +315,16 @@ const styles = StyleSheet.create({
       height: '90%',
       resizeMode: 'contain',
     },
+    containerImage: {
+      justifyContent: 'center',
+      alignItems: 'center', 
+    },
+    imageBackground: {
+      left:40,
+      width: '80%', 
+      height: '70%', 
+    },
+    dataCheckText:{
+      fontSize:17,fontWeight:"400"
+    }
   });
