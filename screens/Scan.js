@@ -54,6 +54,7 @@ const Scan = () => {
   const [resultData, setResultData] = useState();
   const auths = getAuth();
   const settingResult = null;
+  const [isUploading, setIsUploading] = useState(false);
   
 
   const pickImage = async (setImage) => {
@@ -90,14 +91,18 @@ const Scan = () => {
 
   const handleUpload = async () => {
     console.log("upload button clicked");
+    setIsUploading(true);
     if (!file1 || !file2 || !file3) {
       alert("Error: All three files are required.");
+      setIsUploading(false);
       return;
     }else if(!age){
       alert("Error: Please Enter Age");
+      setIsUploading(false);
       return;
     }else if(!weight){
       alert("Error: Please Enter Weight");
+      setIsUploading(false);
       return;
     }
 
@@ -143,6 +148,7 @@ const Scan = () => {
           
         } else {
           ToastAndroid.show('Error: No response or response data received.', ToastAndroid.SHORT);
+          setIsUploading(false);
           console.error("Error: No response or response data received.");
           
         }
@@ -150,12 +156,14 @@ const Scan = () => {
         
       } catch (error) {
         ToastAndroid.show('Error:Server 404 ', ToastAndroid.SHORT);
+        setIsUploading(false);
         console.error('Axios error:', error);
 
       }
 
       // showToastWithGravity()
     } catch (error) {
+      setIsUploading(false);
       console.error('Error uploading images:', error);
     }
   };
@@ -275,7 +283,6 @@ const Scan = () => {
 
 
 
-
                           })
                 })
 
@@ -324,12 +331,14 @@ const Scan = () => {
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
       );
+      setIsUploading(false);
       console.log("Data stored successfully in Firestore!");
       
     } catch (error) {
       ToastAndroid.showWithGravity(
         'Error storing data in Firestore', ToastAndroid.SHORT, ToastAndroid.BOTTOM,
       );
+      setIsUploading(false);
       console.error("Error storing data in Firestore:", error);
     }
 
@@ -408,9 +417,9 @@ const Scan = () => {
                   </View>
               </View> 
 
-              <TouchableOpacity onPress={handleUpload}>
+              <TouchableOpacity onPress={handleUpload} disabled={isUploading}>
                <View style={styles.button}>
-                  <Text style={styles.buttonText}>Submit</Text>
+                  <Text style={styles.buttonText}>{isUploading ? 'Uploading...' : 'Submit'}</Text>
                </View>
           </TouchableOpacity>
           
