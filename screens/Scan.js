@@ -4,6 +4,7 @@ import axios from 'axios';
 // import firebase from 'firebase/app';
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from 'uuid'
+import { API_URL } from './serverApi';
 
 
 import {
@@ -133,7 +134,7 @@ const Scan = () => {
       try {
         
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('http://192.168.163.46:8081/second', formData, {
+        const response = await axios.post('API_URL', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

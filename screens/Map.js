@@ -44,29 +44,43 @@ const Map = () => {
 
 
     useEffect(()=>{
-        (async () => {
-            let { status } = await Location.requestBackgroundPermissionsAsync();
-            if (status == 'granted') {
-                const locationData = await Location.getCurrentPositionAsync({});
-                setLocation(locationData.coords);
-                // navigation.setOptions({
-                //     headerRight: ()=>(
-                //         <TouchableOpacity onPress={focousMap}>
-                //             <View style={{padding:10}}>
-                //                 <Text>Focous</Text>
-                //             </View>
-                //         </TouchableOpacity>
-                //     )
-                // })
-              setErrorMsg('Permission to access location was denied');
+      const getLocation = async () => {
+        try {
+          let { status } = await Location.requestBackgroundPermissionsAsync();
+          if (status === 'granted') {
+            const locationData = await Location.getCurrentPositionAsync({});
+            setLocation(locationData.coords);
+            setErrorMsg(null); // Reset error message when permission is granted
+          } else {
+            setErrorMsg('Permission to access location was denied');
+          }
+        } catch (error) {
+          setErrorMsg('Error accessing location: ' + error.message);
+        }
+      };
+    
+      getLocation(); 
+        // (async () => {
+        //     let { status } = await Location.requestBackgroundPermissionsAsync();
+        //     if (status == 'granted') {
+        //         const locationData = await Location.getCurrentPositionAsync({});
+        //         setLocation(locationData.coords);
+        //         // navigation.setOptions({
+        //         //     headerRight: ()=>(
+        //         //         <TouchableOpacity onPress={focousMap}>
+        //         //             <View style={{padding:10}}>
+        //         //                 <Text>Focous</Text>
+        //         //             </View>
+        //         //         </TouchableOpacity>
+        //         //     )
+        //         // })
+        //       setErrorMsg('Permission to access location was denied');
              
-            }else {
-                setErrorMsg('Permission to access location was denied');
-            }
-      
-        
+        //     }else {
+        //         setErrorMsg('Permission to access location was denied');
+        //     }   
 
-          })();
+        //   })();
 
     },[navigation])
 
@@ -93,7 +107,7 @@ const Map = () => {
     };     
 
     const focusOnLocation = (locationKey) => {
-      const location = locations[locationKey]; // Access location data by key
+      const location = locations[locationKey]; 
       mapRef.current.animateToRegion(location);
     };
 
@@ -101,7 +115,7 @@ const Map = () => {
         if (!location) {
           return;
         }
-        const map = await mapRef.current; // Assuming you have a ref for the MapView
+        const map = await mapRef.current; 
         map.animateToRegion({
           latitude: location.latitude,
           longitude: location.longitude,
