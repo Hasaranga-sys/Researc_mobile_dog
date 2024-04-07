@@ -15,9 +15,12 @@ const ViewHistory = ({route}) => {
   };
     // console.log("PARAMETRS PASSED", route.params);
     const {selectedItem} = route.params;
-    console.log("SCS",selectedItem.results.control);
+    const { clz, confidence, classs } = selectedItem.results;
+
+    console.log("SCSxxx",selectedItem.results.control.results.classs);
     const dataArray = selectedItem.results.control;
-    console.log("DATA ARRAY",dataArray);
+    console.log("DATA AGE",selectedItem.results.age);
+    console.log("DATA CLASSS",selectedItem.results.confidence);
   return (
     
     
@@ -65,7 +68,9 @@ const ViewHistory = ({route}) => {
 
         <Text>Age : {selectedItem.results.age}</Text>
 
-        <Text>Class: {selectedItem.results.classs}</Text>
+        <Text>Class: {selectedItem.results.control.results.classs}</Text>
+
+        <Text>Weight: {selectedItem.results.control.results.weight}</Text>
 
         <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
         <Text>
@@ -84,7 +89,7 @@ const ViewHistory = ({route}) => {
           </View>         
           ))}
         </Text>
-        <Text>Weight: {selectedItem.results.weight}</Text>
+        
 
       </View>
     

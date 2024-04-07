@@ -124,38 +124,20 @@ const Scan = () => {
       formData.append('age', age); 
       formData.append('weight', weight); 
 
-      console.log("before axios");
+
       try {
-        console.log("try block");
+        
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('http://192.168.182.46:8081/second', formData, {
+        const response = await axios.post('http://192.168.163.46:8081/second', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        console.log("BEFORE IF");
+ 
         if (response && response.data) {
-          // console.log("inside IF");
-          // console.log("RESPONSA", response);
-          // console.log("RESPONSEBODYxx", response.data);
-      
-          // ... (Extract and log data as needed)
           const { results: { med: { control, medicines }, header: { age, weight }, predictions: { confidence, classs } } } = response.data;
-          // console.log("control and medicine", control, medicines);
-          // console.log("age and weight", age, weight);
-          // console.log("confidance and class", confidence, classs);
-      
-          // const { percentage, prediction } = response.data;
-          // console.log("PERCEN and PREDIC", percentage, prediction);
-
-          // console.log("Response data:", response.data);
-
-          
-          
           const settingResult = {medicines,control,age,weight,confidence,classs};
-          // console.log("SETTING THE RESx",settingResult)
-          // console.log("RESUX",result);
-          // console.log("CALLING THE UPDATE METHOD");
+
           uploadImage(file1,file2,file3,settingResult);
       
           
@@ -172,94 +154,11 @@ const Scan = () => {
 
       }
 
-     
-      // console.log("all rsp" ,response)
-      //firebase
-      // console.log("FIREBASE");
-      // const storageRef = getStorage(app).ref();
-      // console.log("FILE 1", file1);
-      // console.log("FILE 2", file2);
-      // console.log("FILE 3", file3);
-
-      //new mine
-      // uploadImage(file1,file2,file3,settingResult);
-
-
-  
-
-
       // showToastWithGravity()
     } catch (error) {
       console.error('Error uploading images:', error);
     }
   };
-
-  //new not working
-//   const uploadImage = async (file1, settingResult) => {
-//     const upoloadingimage = file1;
-//     const storagex = getStorage();
-//     const fileName = "Sam";
-//     console.log("FILENAME",upoloadingimage);
-//     try {
-//         const storageRef = ref(storagex, `images/${uuidv4() + "_" + fileName}`);
-//         console.log("FILE !",file1);
-//         console.log("STORAGE REF:",storageRef);
-//         const uploadTask = uploadBytesResumable(
-//           storageRef,
-//           dataURLtoBlob(upoloadingimage)
-//         );
-
-//         uploadTask.on(
-//           "state_changed",
-//           (snapshot) => {
-//             const progress =
-//               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//             console.log("Upload is " + progress + "% done");
-//           },
-//           (error) => {
-//             console.log(error);
-//           },
-//           () => {
-//             getDownloadURL(uploadTask.snapshot.ref)
-//               .then((url) => {
-//                 console.log("File uploaded successfully");
-//                 console.log(url);
-//                 storeDataInFirestore(url,settingResult);
-//               })
-//               .catch((error) => {
-//                 console.log(error);
-//               });
-//           }
-//         );
-//         //gptm
-//         // console.log("settingRESULTLOG", settingResult);
-//         // console.log("UPLOAD IMAGE LOG", file1, file2, file3);
-
-//         // // Create Blobs from files
-//         // const blob1 = await getFileBlob(file1);
-//         // const blob2 = await getFileBlob(file2);
-//         // const blob3 = await getFileBlob(file3);
-
-//         // // Get storage references
-//         // const storageRef1 = ref(storage, `images/${file1.name}`);
-//         // const storageRef2 = ref(storage, `images/${file2.name}`);
-//         // const storageRef3 = ref(storage, `images/${file3.name}`);
-
-//         // // Upload files to Firebase Storage
-//         // await Promise.all([
-//         //     uploadFile(storageRef1, blob1),
-//         //     uploadFile(storageRef2, blob2),
-//         //     uploadFile(storageRef3, blob3)
-//         // ]);
-
-//         // console.log("Files uploaded successfully");
-
-//         // Now you can store data in Firestore
-//         // storeDataInFirestore(file1, file2, file3, settingResult);
-//     } catch (error) {
-//         console.error("Error uploading files:", error);
-//     }
-// };
 
 
   //old working
@@ -306,81 +205,79 @@ const Scan = () => {
 
   // }
 
-  //new try for 3 files
+ /**
+  * Image Uploading Function 
+  */
+
   const uploadImage = async (file1,file2,file3,settingResult) => {
-                              console.log("settingRESULTLOG",settingResult);
-                              console.log("UPLOAD IMAGE LOG", file1,file2,file3);                                
-                            
-                                              // const storageRef = ref(storage, `images/${blob._data.name}`)
-                                    // const upload = uploadBytesResumable(storageRef, blob);     
+                           
                               
-                              
-                              const response = await fetch(file1);
-                              const blob = await response.blob();
+        const response = await fetch(file1);
+        const blob = await response.blob();
 
-                              const storageRef1 = ref(storage, `images/${blob._data.name}`);
-                              const upload = uploadBytesResumable(storageRef1, blob);
-                              console.log("UPLAOD !",upload);
-                              let downloadURL1;
+        const storageRef1 = ref(storage, `images/${blob._data.name}`);
+        const upload = uploadBytesResumable(storageRef1, blob);
+        // console.log("UPLAOD !",upload);
+        let downloadURL1;
 
-                              upload.on("state_changed", (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log("Upload is " + progress + "% done");
-                            });
+            upload.on("state_changed", (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log("Upload is " + progress + "% done");
+          });
 
-                            upload.then(async(snapshot) => {
-                              console.log("COMES DOWN TO UPLOAD ONE");      
-                              downloadURL1 = await getDownloadURL(snapshot.ref);
-                              console.log("downloadURL 1q",downloadURL1 );
+                upload.then(async(snapshot) => {
+                  // console.log("COMES DOWN TO UPLOAD ONE");      
+                  downloadURL1 = await getDownloadURL(snapshot.ref);
+                  // console.log("downloadURL 1q",downloadURL1 );
 
 
-                                    // Upload file2
-                                  const response2 = await fetch(file2);
-                                  const blob2 = await response2.blob();
+                        // Upload file2
+                      const response2 = await fetch(file2);
+                      const blob2 = await response2.blob();
 
-                                  const storageRef2 = ref(storage, `images/${blob2._data.name}`);
-                                  const upload2 = uploadBytesResumable(storageRef2, blob2);
-                                  let downloadURL2;
+                      const storageRef2 = ref(storage, `images/${blob2._data.name}`);
+                      const upload2 = uploadBytesResumable(storageRef2, blob2);
+                      let downloadURL2;
 
-                                  upload2.on("state_changed", (snapshot) => {
+                      upload2.on("state_changed", (snapshot) => {
+                          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                          console.log("Upload is " + progress + "% done");
+                      });
+
+                          upload2.then(async(snapshot2) => {
+                            console.log("COMES DOWN TO UPLOAD TWO");   
+                            downloadURL2 = await getDownloadURL(snapshot2.ref);
+                            console.log("downloadURL 2q",downloadURL2 );
+
+                              // Upload file3
+                              const response3 = await fetch(file3);
+                              const blob3 = await response3.blob();
+
+                              const storageRef3 = ref(storage, `images/${blob3._data.name}`);
+                              const upload3 = uploadBytesResumable(storageRef3, blob3);
+                              let downloadURL3;
+
+                                  upload3.on("state_changed", (snapshot) => {
                                       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                                       console.log("Upload is " + progress + "% done");
                                   });
 
-                                      upload2.then(async(snapshot2) => {
-                                        console.log("COMES DOWN TO UPLOAD TWO");   
-                                        downloadURL2 = await getDownloadURL(snapshot2.ref);
-                                        console.log("downloadURL 2q",downloadURL2 );
+                                        upload3.then(async(snapshot3)=>{
+                                          downloadURL3 = await getDownloadURL(snapshot3.ref);
+                                          console.log("COMES TO THE #RD ONE");
 
-                                                        // Upload file3
-                                                        const response3 = await fetch(file3);
-                                                        const blob3 = await response3.blob();
-                      
-                                                        const storageRef3 = ref(storage, `images/${blob3._data.name}`);
-                                                        const upload3 = uploadBytesResumable(storageRef3, blob3);
-                                                  let downloadURL3;
+                                          console.log("All files uploaded successfully");
+                                            console.log("Download URLs:", downloadURL1, downloadURL2, downloadURL3);
 
-                                                  upload3.on("state_changed", (snapshot) => {
-                                                      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                                      console.log("Upload is " + progress + "% done");
-                                                  });
-
-                                                    upload3.then(async(snapshot3)=>{
-                                                      downloadURL3 = await getDownloadURL(snapshot3.ref);
-                                                      console.log("COMES TO THE #RD ONE");
-
-                                                      console.log("All files uploaded successfully");
-                                                        console.log("Download URLs:", downloadURL1, downloadURL2, downloadURL3);
-
-                                                        // Once all files are uploaded, pass downloadURLs as separate parameters to storeDataInFirestore
-                                                        storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
-                                                    })
+                                            // Once all files are uploaded, pass downloadURLs as separate parameters to storeDataInFirestore
+                                            storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
+                                        })
 
 
 
 
-                                      })
-                            })
+                          })
+                })
 
     
 
