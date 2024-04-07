@@ -19,8 +19,6 @@ const ViewHistory = ({route}) => {
 
     console.log("SCSxxx",selectedItem.results.control.results.classs);
     const dataArray = selectedItem.results.control;
-    console.log("DATA AGE",selectedItem.results.age);
-    console.log("DATA CLASSS",selectedItem.results.confidence);
   return (
     
     
