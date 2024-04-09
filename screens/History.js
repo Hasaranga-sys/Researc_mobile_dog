@@ -2,7 +2,7 @@
 import { ScrollView, StyleSheet, Text, View, FlatList,ActivityIndicator ,TouchableOpacity,Image,ImageBackground } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import { getDocs, collection, query, where, orderBy, and } from 'firebase/firestore';
 import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
 import {getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -188,7 +188,7 @@ const History = () => {
           <Text style={styles.dataCheckText}>No data Available !!!</Text>
           </View>)
          :( <FlatList
-                  data={data}
+                  data={data.sort((a,b)=>b.timestamp.seconds - a.timestamp.seconds)}
                   keyExtractor={(item, index) => index.toString()}
                   
                   renderItem={({ item,index }) => (
