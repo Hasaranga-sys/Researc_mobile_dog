@@ -35,6 +35,8 @@ import {
   getDocs,
   addDoc,
   setDoc,
+  FieldValue,
+  serverTimestamp,
 } from "firebase/firestore";
 import app from '../firebase/firebase-config';
 import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
@@ -325,7 +327,7 @@ const Scan = () => {
         medicines:settingResult.medicines,
 
       },       
-      timestamp: new Date(),
+      timestamp: serverTimestamp(),
       })
       ToastAndroid.showWithGravity(
         'Data stored successfully in Firestore!',
@@ -371,32 +373,35 @@ const Scan = () => {
         <Text style={{padding: 7, marginTop:50, margin:0, fontSize:25,fontWeight:"900"}}>Image Scan</Text>
         <Image style={{height:100,width:100,top:20,right:9}} source={require("../assets/selfie.png")}/>
         </View>
+        
         <ScrollView style={{ backgroundColor: "##ccc9e6", flex: 1, paddingHorizontal: 10 }} >
               <View style={styles.container}>      
             <View style={styles.cardh}>  
-            <View style={styles.row}>
-              <TouchableOpacity onPress={() => pickImage(setImage1)}>
-                <Text style={styles.imageButton}>Select Image 1</Text>
-              </TouchableOpacity>    
-                {file1 && <Image source={{ uri: file1 }} style={{ width: 130, height: 130 }} />}
-            </View>
+
+            <View>
+              <View style={styles.row}>
+                <TouchableOpacity onPress={() => pickImage(setImage1)} disabled={isUploading}>
+                  <Text style={styles.imageButton}>Select Image 1</Text>
+                </TouchableOpacity>    
+                  {file1 && <Image source={{ uri: file1 }} style={{ width: 130, height: 130 }} />}
+              </View>
 
             <View style={styles.row}>
-              <TouchableOpacity onPress={() => pickImage(setImage2)}>
+              <TouchableOpacity onPress={() => pickImage(setImage2)} disabled={isUploading}>
                 <Text style={styles.imageButton}>Select Image 2</Text>
               </TouchableOpacity>    
               {file2 && <Image source={{ uri: file2 }}  style={{ width: 130, height: 130  }} />}
             </View>
 
             <View style={styles.row}>
-              <TouchableOpacity onPress={() => pickImage(setImage3)}>
+              <TouchableOpacity onPress={() => pickImage(setImage3)} disabled={isUploading}>
                 <Text style={styles.imageButton}>Select Image 3</Text>
               </TouchableOpacity>    
               {file3 && <Image source={{ uri: file3 }}  style={{ width: 130, height: 130 }} />}
             </View>
 
                 <View >
-                  <View style={styles.rowInput}>
+                  <View style={styles.rowInput} disabled={isUploading}>
                       <Text style={styles.inputLabel}>Enter Age        :</Text>
                           <TextInput
                             style={styles.input}
@@ -404,6 +409,7 @@ const Scan = () => {
                             keyboardType="numeric"
                             value={age}
                             onChangeText={setAge}
+                            editable={!isUploading}
                           />
                   </View>
                   <View style={styles.rowInput}>
@@ -414,13 +420,16 @@ const Scan = () => {
                               keyboardType="numeric"
                               value={weight}
                               onChangeText={setWeight}
+                              editable={!isUploading}
                             />
                   </View>
               </View> 
+            </View>
+            
 
               <TouchableOpacity onPress={handleUpload} disabled={isUploading}>
                <View style={styles.button}>
-                  <Text style={styles.buttonText}>{isUploading ? 'Uploading...' : 'Submit'}</Text>
+                  <Text style={styles.buttonText}>{isUploading ? <ActivityIndicator size="small" color="#fff" />: 'Submit'}</Text>
                </View>
           </TouchableOpacity>
           
