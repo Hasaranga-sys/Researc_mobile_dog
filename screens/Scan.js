@@ -43,6 +43,7 @@ import { storage } from '../firebase/firebase-config'; // Import your Firebase s
 import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
 import {getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config'; 
+import { Picker } from '@react-native-picker/picker';
 
 
 const Scan = () => {
@@ -51,6 +52,8 @@ const Scan = () => {
   const [file3, setImage3] = useState(null);
   const [age, setAge] = useState('');
   const [weight, setWeight] = useState('');
+  const [active,setActive] = useState('');
+  const [temp, setTemp] = useState('');
   const [user, setUser] = useState();
   const [uid,setUid] = useState();
   const [result, setResult] = useState()
@@ -58,7 +61,49 @@ const Scan = () => {
   const auths = getAuth();
   const settingResult = null;
   const [isUploading, setIsUploading] = useState(false);
-  
+  const [selectedBehavior, setSelectedBehavior] = useState('');
+  const [selectedSymptom, setSelectedSymptom] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [firestoreDownloadUrl1,setFirestoreDownloadUrl1] = useState();
+  const [firestoreDownloadUrl2,setFirestoreDownloadUrl2] = useState();
+  const [firestoreDownloadUrl3,setFirestoreDownloadUrl3] = useState();
+  const [seResult, setSeResult] = useState();
+  let activeStatus = 'No';
+
+  const behaviors_keratosis = [
+    '-- Please Select --',
+    'Reluctance to Walk',
+    'Scratching the infected area',
+    'Rubbing Face',
+    'Limping or Favoring a Paw',
+    ' Licking and Chewing the infected area'
+
+  ];
+
+  const symptoms_keratosis = [
+    '-- Please Select --',
+    'Thickened Skin',
+    'Crusty Patches',
+    'Discoloration',
+    'Cracks in the infected area',
+    'Dryness in the infected area'
+
+  ];
+
+  const behaviors_mange = [
+    '-- Please Select --',
+    'Excessive Scratching',
+    'Restlessness',
+    'Rubbing Against Surfaces',
+    ' Avoidance of Touch in the infected areas'
+  ];
+
+  const symptoms_mange = [
+    '-- Please Select --',
+    'Hair Loss in the area',
+    'Redness of the area',
+    ' Lesions and Scabs in the area'    
+  ];
 
   const pickImage = async (setImage) => {
     let result;
@@ -107,6 +152,10 @@ const Scan = () => {
       alert("Error: Please Enter Weight");
       setIsUploading(false);
       return;
+    }else if(!temp){
+      alert("Error: Please Enter Tempreture");
+      setIsUploading(false);
+      return;
     }
 
 
@@ -130,7 +179,9 @@ const Scan = () => {
       });
 
       formData.append('age', age); 
-      formData.append('weight', weight); 
+      formData.append('weight', weight);
+      formData.append('temp',temp);
+      formData.append('active',active);
 
 
       try {
@@ -141,10 +192,12 @@ const Scan = () => {
             'Content-Type': 'multipart/form-data',
           },
         });
+        console.log("after request");
  
         if (response && response.data) {
-          const { results: { med: { control, medicines }, header: { age, weight }, predictions: { confidence, classs } } } = response.data;
-          const settingResult = {medicines,control,age,weight,confidence,classs};
+          console.log("response data", response.data);
+          const { results: { med: { control, medicines }, header: { age, weight,temp,active }, predictions: { confidence, classs },disease } } = response.data;
+          const settingResult = {medicines,control,age,weight,temp,active,confidence,classs,disease};
 
           uploadImage(file1,file2,file3,settingResult);
       
@@ -281,7 +334,18 @@ const Scan = () => {
                                             console.log("Download URLs:", downloadURL1, downloadURL2, downloadURL3);
 
                                             // Once all files are uploaded, pass downloadURLs as separate parameters to storeDataInFirestore
-                                            storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
+                                            // setFirestoreData(downloadURL1, downloadURL2, downloadURL3, settingResult)
+                                            setFirestoreDownloadUrl1(downloadURL1);
+                                            setFirestoreDownloadUrl2(downloadURL2);
+                                            setFirestoreDownloadUrl3(downloadURL3)
+                                            setSeResult(settingResult);
+
+                                            // console.log("udi-ages",settingResult);
+                                            // setResultData(settingResult);
+
+                                            setIsUploading(false);
+                                            // storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
+
                                         })
 
 
@@ -296,15 +360,16 @@ const Scan = () => {
   //sample method
 
 
-  const storeDataInFirestore = async (file1Url,file2Url, file3Url, settingResult) => {
+  const storeDataInFirestore = async (file1Url,file2Url, file3Url, seResult) => {
     console.log("Image uri and text input IN FIRESTORE CALL : 1",file1Url);
+    console.log("ACTIVESTATUS_IN FIRESTOE",activeStatus);
     console.log("Image uri and text input IN FIRESTORE CALL : 2",file2Url);
     console.log("Image uri and text input IN FIRESTORE CALL : 3",file3Url);
 
     console.log("autho",auth.currentUser.email);
     
-    console.log("udi-ages",settingResult);
-    setResultData(settingResult);
+    console.log("udi-ages",seResult);
+    setResultData(seResult);
   
 
     try {
@@ -319,12 +384,14 @@ const Scan = () => {
       },
    
       results:{
-        age:settingResult.age,
-        classs:settingResult.classs,
-        weight:settingResult.weight,
-        confidence:settingResult.confidence,
-        control:settingResult.control,
-        medicines:settingResult.medicines,
+        age:seResult.age,
+        classs:seResult.classs,
+        weight:seResult.weight,
+        active:activeStatus,
+        temp:seResult.temp,
+        confidence:seResult.confidence,
+        control:seResult.control,
+        medicines:seResult.medicines,
 
       },       
       timestamp: serverTimestamp(),
@@ -361,6 +428,39 @@ const Scan = () => {
       ToastAndroid.SHORT,
       ToastAndroid.BOTTOM,
     );
+  };
+
+  
+  const handleBehaviorChange = (itemValue) => {
+    console.log("Behavoiur selected",itemValue);
+    setSelectedBehavior(itemValue);
+    setShowDetails(false); // Reset details on behavior change
+  };
+
+  const handleSymptomChange = (itemValue) => {
+    console.log("Symtopm selected",itemValue);
+    setSelectedSymptom(itemValue);
+    setShowDetails(false); // Reset details on symptom change
+  };
+
+  const handleShowDetails = () => {
+    console.log("handleShowDetails");
+    if(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin'){
+      console.log("URL1", firestoreDownloadUrl1);
+      console.log("URL2", firestoreDownloadUrl2);
+      console.log("URL3", firestoreDownloadUrl3);
+      console.log("dataset", seResult);
+      activeStatus = 'Yes'
+      console.log("ACTIVE",activeStatus)
+      console.log("ACTIVE_FLAG",seResult.active);
+
+      storeDataInFirestore(firestoreDownloadUrl1, firestoreDownloadUrl2, firestoreDownloadUrl3, seResult);
+
+
+    }else if(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin'){
+      setShowDetails(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin');
+    }
+    
   };
 
  
@@ -423,6 +523,17 @@ const Scan = () => {
                               editable={!isUploading}
                             />
                   </View>
+                  <View style={styles.rowInput}>
+                      <Text style={styles.inputLabel}>Enter Tempreture  :</Text>
+                          <TextInput
+                              style={styles.input}
+                              placeholder="Enter Tempreture"
+                              keyboardType="numeric"
+                              value={temp}
+                              onChangeText={setTemp}
+                              editable={!isUploading}
+                            />
+                  </View>
               </View> 
             </View>
             
@@ -436,7 +547,73 @@ const Scan = () => {
 
             {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
             </View>
-            <View>
+            <View >
+              {seResult?.disease == 'Keratosis' &&(
+              <View style={styles.cardh}>
+                <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+                 {/* Dropdowns */}
+                    <Picker
+                      selectedValue={selectedBehavior}
+                      onValueChange={handleBehaviorChange}
+                      mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                    >
+                    {behaviors_keratosis.map((behavior, index) => (
+                        <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
+                    </Picker>
+
+                    <Picker
+                      selectedValue={selectedSymptom}
+                      onValueChange={handleSymptomChange}
+                      mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                    >
+                      {symptoms_keratosis.map((symptom, index) => (
+                        <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
+                      ))}
+                    </Picker>                 
+                     
+
+                <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} />
+
+              </View> 
+              )
+              }
+              {resultData?.disease == 'Mange' &&(
+              <View style={styles.cardh}>
+              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+               {/* Dropdowns */}
+                  <Picker
+                    selectedValue={selectedBehavior}
+                    onValueChange={handleBehaviorChange}
+                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                  >
+                  {behaviors_keratosis.map((behavior, index) => (
+                      <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
+                  </Picker>
+
+                  <Picker
+                    selectedValue={selectedSymptom}
+                    onValueChange={handleSymptomChange}
+                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                  >
+                    {symptoms_keratosis.map((symptom, index) => (
+                      <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
+                    ))}
+                  </Picker>                 
+                   
+
+              <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} />
+
+            </View>  )
+              }
+
+              {showDetails && (
+                  <View>
+                    {/* Details based on selected behavior and symptom */}
+                    <Text>Details:</Text>
+                    {/* ... details content ... */}
+                  </View>
+                        )}
+
             {resultData && ( // Check if resultData exists
                 <View style={styles.cardh}>
                   <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
