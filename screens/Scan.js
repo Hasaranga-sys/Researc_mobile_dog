@@ -53,7 +53,7 @@ const Scan = () => {
   const [age, setAge] = useState('');
   const [weight, setWeight] = useState('');
   const [active,setActive] = useState('');
-  const [temp, setTemp] = useState('');
+  const [temp, setTemp] = useState();
   const [user, setUser] = useState();
   const [uid,setUid] = useState();
   const [result, setResult] = useState()
@@ -64,11 +64,14 @@ const Scan = () => {
   const [selectedBehavior, setSelectedBehavior] = useState('');
   const [selectedSymptom, setSelectedSymptom] = useState('');
   const [showDetails, setShowDetails] = useState(false);
+  const [showDetailsFalse, setShowDetailsFalse] = useState(false);
   const [firestoreDownloadUrl1,setFirestoreDownloadUrl1] = useState();
   const [firestoreDownloadUrl2,setFirestoreDownloadUrl2] = useState();
   const [firestoreDownloadUrl3,setFirestoreDownloadUrl3] = useState();
-  const [seResult, setSeResult] = useState();
+  // const [seResult, setSeResult] = useState();
   let activeStatus = 'No';
+  let behaviourSelected = '';
+  let symtomSelected = '';
 
   const behaviors_keratosis = [
     '-- Please Select --',
@@ -338,12 +341,30 @@ const Scan = () => {
                                             setFirestoreDownloadUrl1(downloadURL1);
                                             setFirestoreDownloadUrl2(downloadURL2);
                                             setFirestoreDownloadUrl3(downloadURL3)
-                                            setSeResult(settingResult);
+                                          
 
-                                            // console.log("udi-ages",settingResult);
-                                            // setResultData(settingResult);
+                                            console.log("udi-ages-setResultdata",settingResult);
+                                            setResultData(settingResult);
 
                                             setIsUploading(false);
+
+                                            console.log("getting the temp",settingResult.temp);
+                                              if(settingResult.temp >= 30){
+                                                console.log("Tempreture log inside");
+                                                activeStatus = 'No'
+                                                ToastAndroid.showWithGravity(
+                                                  'The Dog is Javing fever',
+                                                  ToastAndroid.LONG,
+                                                  ToastAndroid.BOTTOM,
+                                                );
+                                                storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
+                                              }else{
+                                                console.log("setResultData setted",settingResult);
+                                                // setSeResult(settingResult)
+                                               
+                                              }
+
+
                                             // storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
 
                                         })
@@ -360,7 +381,7 @@ const Scan = () => {
   //sample method
 
 
-  const storeDataInFirestore = async (file1Url,file2Url, file3Url, seResult) => {
+  const storeDataInFirestore = async (file1Url,file2Url, file3Url, settingResult) => {
     console.log("Image uri and text input IN FIRESTORE CALL : 1",file1Url);
     console.log("ACTIVESTATUS_IN FIRESTOE",activeStatus);
     console.log("Image uri and text input IN FIRESTORE CALL : 2",file2Url);
@@ -368,8 +389,11 @@ const Scan = () => {
 
     console.log("autho",auth.currentUser.email);
     
-    console.log("udi-ages",seResult);
-    setResultData(seResult);
+    console.log("udi-ages",settingResult);
+    //comment this for test this is original
+    // setResultData(seResult);
+    console.log("ADDING BEHAVOIR ",behaviourSelected);
+    console.log("ADDING SYMPTOMX ",symtomSelected);
   
 
     try {
@@ -384,14 +408,16 @@ const Scan = () => {
       },
    
       results:{
-        age:seResult.age,
-        classs:seResult.classs,
-        weight:seResult.weight,
+        age:settingResult.age,
+        classs:settingResult.classs,
+        weight:settingResult.weight,
         active:activeStatus,
-        temp:seResult.temp,
-        confidence:seResult.confidence,
-        control:seResult.control,
-        medicines:seResult.medicines,
+        behavoir:behaviourSelected,
+        symptom:symtomSelected,
+        temp:settingResult.temp,
+        confidence:settingResult.confidence,
+        control:settingResult.control,
+        medicines:settingResult.medicines,
 
       },       
       timestamp: serverTimestamp(),
@@ -445,22 +471,42 @@ const Scan = () => {
 
   const handleShowDetails = () => {
     console.log("handleShowDetails");
+    activeStatus = 'No'
+
     if(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin'){
       console.log("URL1", firestoreDownloadUrl1);
       console.log("URL2", firestoreDownloadUrl2);
       console.log("URL3", firestoreDownloadUrl3);
-      console.log("dataset", seResult);
+      console.log("dataset", resultData);
       activeStatus = 'Yes'
       console.log("ACTIVE",activeStatus)
-      console.log("ACTIVE_FLAG",seResult.active);
+      console.log("ACTIVE_FLAG",resultData.active);
+      setShowDetails(true)
 
-      storeDataInFirestore(firestoreDownloadUrl1, firestoreDownloadUrl2, firestoreDownloadUrl3, seResult);
+      // setResultData(resultData);
 
-
-    }else if(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin'){
-      setShowDetails(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin');
+    }else if(selectedBehavior === 'Excessive Scratching' && selectedSymptom === ' Hair Loss in the area'){
+      activeStatus = 'Yes'
+      setShowDetails(true)
+      // setResultData(seResult);
+      // setShowDetails(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin');
+    }else if(selectedBehavior === 'Sneezing' && selectedSymptom === 'Thick Yellow, Green, White or Bloody Discharge'){
+      activeStatus = 'Yes'
+      setShowDetails(true)
+      
+    }else{
+      setShowDetailsFalse(true)
+      ToastAndroid.showWithGravity(
+        'System Cannot Predict the results at the moment',
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+      );
     }
-    
+    behaviourSelected =selectedBehavior;
+    symtomSelected =selectedSymptom;
+
+
+    storeDataInFirestore(firestoreDownloadUrl1, firestoreDownloadUrl2, firestoreDownloadUrl3, resultData);
   };
 
  
@@ -548,10 +594,109 @@ const Scan = () => {
             {/* <Button title="Set Data to firebase" onPress={storeDataInFirestore} /> */}
             </View>
             <View >
-              {seResult?.disease == 'Keratosis' &&(
+            {resultData?.temp >= 30 ? (
+                  <View style={styles.cardh}>
+                  <Text style={{alignContent:'center', fontWeight:"400", fontSize:16}}>Your Pet Maybe Have the Fever!!</Text>
+                  
+                </View>
+                ) : (
+                  <View>
+                    {resultData?.disease == 'Keratosis' &&(
+                      <View style={styles.cardh}>
+                        <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+                        
+                            <Picker
+                              selectedValue={selectedBehavior}
+                              onValueChange={handleBehaviorChange}
+                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                            >
+                            {behaviors_keratosis.map((behavior, index) => (
+                                <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
+                            </Picker>
+
+                            <Picker
+                              selectedValue={selectedSymptom}
+                              onValueChange={handleSymptomChange}
+                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                            >
+                              {symptoms_keratosis.map((symptom, index) => (
+                                <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
+                              ))}
+                            </Picker>                 
+                            
+                                  
+                        <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} />
+
+                      </View>  ) }
+
+                          {resultData?.disease == 'Mange' &&(
+                              <View style={styles.cardh}>
+                              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+                            
+                                  <Picker
+                                    selectedValue={selectedBehavior}
+                                    onValueChange={handleBehaviorChange}
+                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                  >
+                                  {behaviors_keratosis.map((behavior, index) => (
+                                      <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
+                                  </Picker>
+
+                                  <Picker
+                                    selectedValue={selectedSymptom}
+                                    onValueChange={handleSymptomChange}
+                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                  >
+                                    {symptoms_keratosis.map((symptom, index) => (
+                                      <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
+                                    ))}
+                                  </Picker>                 
+                                  
+                                  <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
+                                  <View style={styles.button}>
+                                      <Text style={styles.buttonText}>{'Proceed'}</Text>
+                                  </View>
+                              </TouchableOpacity>
+                              {/* <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} /> */}
+
+                            </View>  )
+                          }
+
+                             
+                                  {showDetails && ( // Check if resultData exists
+                                      <View style={styles.cardh}>
+                                        <Text style={{width:220, fontWeight:"600", fontSize:20}}>Results</Text>
+                                        <Text style={{ fontWeight: 'bold' }}>Age                 : {resultData?.age}</Text>
+                                        <Text style={{ fontWeight: 'bold' }}>Weight            : {resultData?.weight}</Text>
+                                        <Text style={{ fontWeight: 'bold' }}>Confidence     : {resultData?.confidence}</Text>
+                                        <Text style={{ fontWeight: 'bold' }}>Class               : {resultData?.classs}</Text>
+                                        <Text style={{ fontWeight: 'bold' }}>Control Steps :</Text>
+                                        <View>
+                                          {resultData?.control.map((step, index) => (
+                                            <Text key={index}>{index + 1}. {step}</Text>
+                                          ))}
+                                        </View>
+                                        <Text style={{ fontWeight: 'bold' }}>Medicines:</Text>
+                                        <View>
+                                          {resultData?.medicines.map((step, index) => (
+                                            <Text key={index}>{index + 1}. {step}</Text>
+                                          ))}
+                                        </View>
+                                      </View>
+                                    )}
+
+                                    {showDetailsFalse && ( // Check if resultData exists
+                                      <View style={styles.cardh}>
+                                        <Text style={{width:220, fontWeight:"400", fontSize:16}}>System cannot predict the Results</Text>
+                                        
+                                      </View>
+                                    )}
+          </View>
+                )}
+              {/* {seResult?.disease == 'Keratosis' &&(
               <View style={styles.cardh}>
                 <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
-                 {/* Dropdowns */}
+                
                     <Picker
                       selectedValue={selectedBehavior}
                       onValueChange={handleBehaviorChange}
@@ -580,7 +725,7 @@ const Scan = () => {
               {resultData?.disease == 'Mange' &&(
               <View style={styles.cardh}>
               <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
-               {/* Dropdowns */}
+             
                   <Picker
                     selectedValue={selectedBehavior}
                     onValueChange={handleBehaviorChange}
@@ -608,11 +753,18 @@ const Scan = () => {
 
               {showDetails && (
                   <View>
-                    {/* Details based on selected behavior and symptom */}
+                   
                     <Text>Details:</Text>
-                    {/* ... details content ... */}
+                  
                   </View>
                         )}
+            {resultData?.temp == 3 &&(
+              <View style={styles.cardh}>
+              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Tempreture warning</Text>
+            
+
+            </View>
+            )}
 
             {resultData && ( // Check if resultData exists
                 <View style={styles.cardh}>
@@ -634,7 +786,7 @@ const Scan = () => {
                     ))}
                   </View>
                 </View>
-              )}
+              )} */}
             </View>
            
           </View>

@@ -55,7 +55,7 @@ const History = () => {
           // const userMail = user.email;
           console.log("USER EMAIL",auths.currentUser.email);
           setLoading(true);
-          const allData = query(collection(db,"Original_Predic"),where("user.email", "==" , auths.currentUser.email))
+          const allData = query(collection(db,"Original_Predic"),where("user.email", "==" , auths.currentUser.email),where("results.active", "==", "Yes"))
           console.log("ALL data",allData);
           const dataSnapshot = await getDocs(allData)
           console.log("SNapshot_2",dataSnapshot);
