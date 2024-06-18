@@ -375,7 +375,7 @@ const Scan = () => {
                                                 console.log("Tempreture log inside");
                                                 activeStatus = 'No'
                                                 ToastAndroid.showWithGravity(
-                                                  'The Dog is Javing fever',
+                                                  'Your pet Might have the fever!!',
                                                   ToastAndroid.LONG,
                                                   ToastAndroid.BOTTOM,
                                                 );
@@ -627,7 +627,7 @@ const Scan = () => {
             <View >
             {resultData?.temp >= 30 ? (
                   <View style={styles.cardh}>
-                  <Text style={{alignContent:'center', fontWeight:"400", fontSize:16}}>Your Pet Maybe Have the Fever!!</Text>
+                  <Text style={{alignSelf:'center',color:'#ff4545' , fontWeight:"400", fontSize:16}}>Your Pet Maybe Have the Fever!!</Text>
                   
                 </View>
                 ) : (
@@ -812,7 +812,7 @@ const Scan = () => {
 
                                     {showDetailsFalse && ( // Check if resultData exists
                                       <View style={styles.cardh}>
-                                        <Text style={{width:220, fontWeight:"400", fontSize:16, alignContent:"center"}}>System cannot predict the Results</Text>
+                                        <Text style={{width:290, fontWeight:"400", fontSize:16,color:'#ff4545', alignSelf:'center',marginBottom:5,marginTop:5}}>System cannot predict the Result !!</Text>
                                         
                                       </View>
                                     )}
@@ -961,12 +961,13 @@ padding:5,
     top: 0,
     right: 7,
     width: 367, // Set your desired width
-
+    borderBlockColor:'#ff4545',
     backgroundColor: '#e1e4ed', // Set your desired background color
     padding: 16,
     borderRadius:25,
     zIndex: 1,
   },
+
   rowTop:{
     flexDirection: "row",
     justifyContent: "space-between",
