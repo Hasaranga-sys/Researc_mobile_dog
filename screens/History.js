@@ -1,13 +1,10 @@
 
-import { ScrollView, StyleSheet, Text, View, FlatList,ActivityIndicator ,TouchableOpacity,Image,ImageBackground } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { getDocs, collection, query, where, orderBy, and } from 'firebase/firestore';
-import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
-import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
-import {getAuth, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/firebase-config';
 import { useNavigation } from "@react-navigation/native";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { auth, db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
 
 const History = () => {
 

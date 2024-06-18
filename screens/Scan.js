@@ -1,49 +1,36 @@
-import React, { useState,useEffect } from 'react';
-import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useEffect, useState } from 'react';
 // import firebase from 'firebase/app';
 import "react-native-get-random-values";
-import { v4 as uuidv4 } from 'uuid'
-import { API_URL } from './serverApi';
 
 
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  Image,
-  Button,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-  ImageBackground,
-  TextInput, ImagePickerResult, Platform, ToastAndroid
-} from "react-native";
+import { Picker } from '@react-native-picker/picker';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {
   collection,
-  query,
-  where,
-  getDoc,
   doc,
-  getDocs,
-  addDoc,
-  setDoc,
-  FieldValue,
   serverTimestamp,
+  setDoc
 } from "firebase/firestore";
-import app from '../firebase/firebase-config';
-import { storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
-import { db } from '../firebase/firebase-config'; // Import your Firebase Firestore instance
-import {getAuth, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase/firebase-config'; 
-import { Picker } from '@react-native-picker/picker';
+import {
+  getDownloadURL,
+  ref,
+  uploadBytesResumable
+} from "firebase/storage";
+import {
+  ActivityIndicator,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  View
+} from "react-native";
+import { auth, db, storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
 
 
 const Scan = () => {
@@ -62,6 +49,7 @@ const Scan = () => {
   const settingResult = null;
   const [isUploading, setIsUploading] = useState(false);
   const [selectedBehavior, setSelectedBehavior] = useState('');
+  const [selectedTest, setSelectedTest] = useState('');
   const [selectedSymptom, setSelectedSymptom] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFalse, setShowDetailsFalse] = useState(false);
@@ -72,9 +60,9 @@ const Scan = () => {
   let activeStatus = 'No';
   let behaviourSelected = '';
   let symtomSelected = '';
+  let testSelected ='';
 
   const behaviors_keratosis = [
-    '-- Please Select --',
     'Reluctance to Walk',
     'Scratching the infected area',
     'Rubbing Face',
@@ -84,7 +72,6 @@ const Scan = () => {
   ];
 
   const symptoms_keratosis = [
-    '-- Please Select --',
     'Thickened Skin',
     'Crusty Patches',
     'Discoloration',
@@ -93,8 +80,12 @@ const Scan = () => {
 
   ];
 
+  const test_keratosis = [
+    'Touch and feel if the affected areas are rough',
+  ];
+
+
   const behaviors_mange = [
-    '-- Please Select --',
     'Excessive Scratching',
     'Restlessness',
     'Rubbing Against Surfaces',
@@ -102,11 +93,42 @@ const Scan = () => {
   ];
 
   const symptoms_mange = [
-    '-- Please Select --',
     'Hair Loss in the area',
     'Redness of the area',
     ' Lesions and Scabs in the area'    
   ];
+
+  const test_mange = [
+    'Full Blood Count (FBC) (Optional)',
+  ];
+
+  const behaviour_Nasal_Discharge = [
+    'Sneezing',
+    'Coughing',
+    'Labored Breathing',
+    'Rubbing or pawing at nose and face',
+    'Appetite loss',
+    'Trouble breathing through nose'
+  ];
+
+  const symptom_Nasal_Discharge = [
+    'Wet, runny nose for longer than 24 hours',
+    'Red, swollen or puffy eyes',
+    'Thick Yellow, Green, White or Bloody Discharge',
+    'Thick, sticky mucus',
+    'Unpleasant Smell',
+    'Crusting Around Nostrils'
+  ];
+
+  const test_Nasal_Discharge = [
+    'Wet, runny nose for longer than 24 hours',
+    'Red, swollen or puffy eyes',
+    'Thick Yellow, Green, White or Bloody Discharge',
+    'Thick, sticky mucus',
+    'Unpleasant Smell',
+    'Crusting Around Nostrils'
+  ];
+  
 
   const pickImage = async (setImage) => {
     let result;
@@ -393,7 +415,8 @@ const Scan = () => {
     //comment this for test this is original
     // setResultData(seResult);
     console.log("ADDING BEHAVOIR ",behaviourSelected);
-    console.log("ADDING SYMPTOMX ",symtomSelected);
+    console.log("ADDING SYMPTOM ",symtomSelected);
+    console.log("ADDING TEST",testSelected);
   
 
     try {
@@ -414,6 +437,7 @@ const Scan = () => {
         active:activeStatus,
         behavoir:behaviourSelected,
         symptom:symtomSelected,
+        test:testSelected,
         temp:settingResult.temp,
         confidence:settingResult.confidence,
         control:settingResult.control,
@@ -463,6 +487,12 @@ const Scan = () => {
     setShowDetails(false); // Reset details on behavior change
   };
 
+  const handleTestChange = (itemValue) => {
+    console.log("Test selected",itemValue);
+    setSelectedTest(itemValue);
+    // setShowDetails(false); // Reset details on behavior change
+  };
+
   const handleSymptomChange = (itemValue) => {
     console.log("Symtopm selected",itemValue);
     setSelectedSymptom(itemValue);
@@ -489,7 +519,7 @@ const Scan = () => {
       activeStatus = 'Yes'
       setShowDetails(true)
       // setResultData(seResult);
-      // setShowDetails(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin');
+
     }else if(selectedBehavior === 'Sneezing' && selectedSymptom === 'Thick Yellow, Green, White or Bloody Discharge'){
       activeStatus = 'Yes'
       setShowDetails(true)
@@ -497,13 +527,14 @@ const Scan = () => {
     }else{
       setShowDetailsFalse(true)
       ToastAndroid.showWithGravity(
-        'System Cannot Predict the results at the moment',
+        'System Cannot Predict the results',
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM,
       );
     }
     behaviourSelected =selectedBehavior;
     symtomSelected =selectedSymptom;
+    testSelected = selectedTest;
 
 
     storeDataInFirestore(firestoreDownloadUrl1, firestoreDownloadUrl2, firestoreDownloadUrl3, resultData);
@@ -601,7 +632,7 @@ const Scan = () => {
                 </View>
                 ) : (
                   <View>
-                    {resultData?.disease == 'Keratosis' &&(
+                    {resultData?.classs == 'Keratosis' &&(
                       <View style={styles.cardh}>
                         <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
                         
@@ -610,8 +641,11 @@ const Scan = () => {
                               onValueChange={handleBehaviorChange}
                               mode="dropdown" // Adjust mode as needed (dropdown, modal)
                             >
-                            {behaviors_keratosis.map((behavior, index) => (
-                                <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
+                             <Picker.Item style={{fontSize: 10}} label="Select a behavior..." value="" />
+                                  {behaviors_keratosis.map((behavior, index) => (
+                                    <Picker.Item style={{fontSize: 10}} key={index} label={behavior} value={behavior} />
+                                  ))}
+                            
                             </Picker>
 
                             <Picker
@@ -619,45 +653,136 @@ const Scan = () => {
                               onValueChange={handleSymptomChange}
                               mode="dropdown" // Adjust mode as needed (dropdown, modal)
                             >
-                              {symptoms_keratosis.map((symptom, index) => (
-                                <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
-                              ))}
-                            </Picker>                 
-                            
+                              <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
+                                {symptoms_keratosis.map((symptom, index) => (
+                                  <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                ))}
+                              
+                            </Picker>
+
+                            <Picker
+                              selectedValue={selectedTest}
+                              onValueChange={handleTestChange}
+                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                            >
+                              <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                                {test_keratosis.map((test, index) => (
+                                  <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                ))}
+                              
+                            </Picker>
+
+                                          
+                            <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
+                                <View style={styles.button}>
+                                    <Text style={styles.buttonText}>{'Proceed'}</Text>
+                                </View>
+                            </TouchableOpacity>
                                   
-                        <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} />
+                        {/* <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} /> */}
 
                       </View>  ) }
 
-                          {resultData?.disease == 'Mange' &&(
+                          {resultData?.classs == 'Mange' &&(
                               <View style={styles.cardh}>
                               <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
-                            
-                                  <Picker
+
+
+                              <Picker
                                     selectedValue={selectedBehavior}
                                     onValueChange={handleBehaviorChange}
-                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                    mode="dropdown" 
                                   >
-                                  {behaviors_keratosis.map((behavior, index) => (
-                                      <Picker.Item style={{fontSize:10}} key={index} label={behavior} value={behavior} /> ))} 
-                                  </Picker>
+                                    <Picker.Item style={{fontSize: 10}} label="Select a Bahavoiur..." value="" />
+                                      {behaviors_mange.map((symptom, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                      ))}
+                                    
+                                  </Picker>  
+                            
 
                                   <Picker
                                     selectedValue={selectedSymptom}
                                     onValueChange={handleSymptomChange}
                                     mode="dropdown" // Adjust mode as needed (dropdown, modal)
                                   >
-                                    {symptoms_keratosis.map((symptom, index) => (
-                                      <Picker.Item style={{fontSize:10}} key={index} label={symptom} value={symptom} />
-                                    ))}
-                                  </Picker>                 
+                                    <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
+                                      {symptoms_mange.map((symptom, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                      ))}
+                                    
+                                  </Picker>      
+
+                                  <Picker
+                                    selectedValue={selectedTest}
+                                    onValueChange={handleTestChange}
+                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                  >
+                                    <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                                      {test_mange.map((test, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                      ))}
+                                    
+                                  </Picker>            
                                   
                                   <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
                                   <View style={styles.button}>
                                       <Text style={styles.buttonText}>{'Proceed'}</Text>
                                   </View>
                               </TouchableOpacity>
-                              {/* <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} /> */}
+                              
+
+                            </View>  )
+                          }
+
+                          {resultData?.classs == ' Nasal_Discharge' &&(
+                              <View style={styles.cardh}>
+                              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+
+
+                              <Picker
+                                    selectedValue={selectedBehavior}
+                                    onValueChange={handleBehaviorChange}
+                                    mode="dropdown" 
+                                  >
+                                    <Picker.Item style={{fontSize: 10}} label="Select a Bahavoiur..." value="" />
+                                      {behaviour_Nasal_Discharge.map((symptom, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                      ))}
+                                    
+                                  </Picker>  
+                            
+
+                                  <Picker
+                                    selectedValue={selectedSymptom}
+                                    onValueChange={handleSymptomChange}
+                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                  >
+                                    <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
+                                      {symptom_Nasal_Discharge.map((symptom, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                      ))}
+                                    
+                                  </Picker>      
+
+                                  <Picker
+                                    selectedValue={selectedTest}
+                                    onValueChange={handleTestChange}
+                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
+                                  >
+                                    <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                                      {test_Nasal_Discharge.map((test, index) => (
+                                        <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                      ))}
+                                    
+                                  </Picker>            
+                                  
+                                  <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
+                                  <View style={styles.button}>
+                                      <Text style={styles.buttonText}>{'Proceed'}</Text>
+                                  </View>
+                              </TouchableOpacity>
+                              
 
                             </View>  )
                           }
@@ -687,7 +812,7 @@ const Scan = () => {
 
                                     {showDetailsFalse && ( // Check if resultData exists
                                       <View style={styles.cardh}>
-                                        <Text style={{width:220, fontWeight:"400", fontSize:16}}>System cannot predict the Results</Text>
+                                        <Text style={{width:220, fontWeight:"400", fontSize:16, alignContent:"center"}}>System cannot predict the Results</Text>
                                         
                                       </View>
                                     )}

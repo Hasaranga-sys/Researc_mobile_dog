@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, Text, View, ImageBackground,TouchableOpacity,Image } from 'react-native';
-import React, { useState, useRef } from 'react';
 import { useNavigation } from "@react-navigation/native";
+import React, { useRef, useState } from 'react';
+import { Image, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 
@@ -64,11 +64,19 @@ const ViewHistory = ({route}) => {
     <View style={styles.cardh}>
     <Text style={{alignSelf:"center",marginTop:3, fontSize:20,fontWeight:"600"}}>Details</Text>
 
-        <Text>Age : {selectedItem.results.age}</Text>
+        
+        <Text>
+         <Text style={{fontWeight:'bold'}} > Age                :</Text>{selectedItem.results.age}</Text>
 
-        <Text>Class: {selectedItem.results.control.results.classs}</Text>
+        <Text><Text style={{fontWeight:'bold'}} > Class             :</Text> {selectedItem.results.control.results.classs}</Text>
 
-        <Text>Weight: {selectedItem.results.control.results.weight}</Text>
+        <Text><Text style={{fontWeight:'bold'}} > Weight          :</Text> {selectedItem.results.control.results.weight}</Text>
+        
+        <Text><Text style={{fontWeight:'bold'}} > Symptom      :</Text> {selectedItem.results.control.results.symptom}</Text>
+
+        <Text><Text style={{fontWeight:'bold'}} > Behaviour     :</Text> {selectedItem.results.control.results.behavoir}</Text>
+
+        <Text><Text style={{fontWeight:'bold'}} > Tempreture  :</Text> {selectedItem.results.control.results.temp}</Text>
 
         <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
         <Text>
