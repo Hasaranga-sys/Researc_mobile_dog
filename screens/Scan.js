@@ -380,10 +380,15 @@ const Scan = () => {
                                                   ToastAndroid.BOTTOM,
                                                 );
                                                 storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);
-                                              }else{
-                                                console.log("setResultData setted",settingResult);
-                                                // setSeResult(settingResult)
-                                               
+                                              }else if(settingResult.classs == "UNKNOWN"){
+                                                console.log("Unknown log inside");
+                                                activeStatus = 'No'
+                                                ToastAndroid.showWithGravity(
+                                                  'System Cannot Predict the Results !!',
+                                                  ToastAndroid.LONG,
+                                                  ToastAndroid.BOTTOM,
+                                                );
+                                                storeDataInFirestore(downloadURL1, downloadURL2, downloadURL3, settingResult);                                          
                                               }
 
 
@@ -682,6 +687,13 @@ const Scan = () => {
                         {/* <Button title="Show Details" onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom} /> */}
 
                       </View>  ) }
+
+                      {resultData?.classs == 'UNKNOWN' &&(
+                              <View style={styles.cardh}>
+                              <Text style={{alignSelf:'center',color:'#ff4545' , fontWeight:"400", fontSize:16}}>System Cannot Predict the Results!!</Text>
+                              
+                            </View>  )
+                          }
 
                           {resultData?.classs == 'Mange' &&(
                               <View style={styles.cardh}>
