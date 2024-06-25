@@ -121,12 +121,8 @@ const Scan = () => {
   ];
 
   const test_Nasal_Discharge = [
-    'Wet, runny nose for longer than 24 hours',
-    'Red, swollen or puffy eyes',
-    'Thick Yellow, Green, White or Bloody Discharge',
-    'Thick, sticky mucus',
-    'Unpleasant Smell',
-    'Crusting Around Nostrils'
+    ' A Cytology tests for Nasal Discharge report can be taken and presented to the doctor for further clarification of the disease',
+    
   ];
   
 
@@ -747,7 +743,7 @@ const Scan = () => {
                             </View>  )
                           }
 
-                          {resultData?.classs == ' Nasal_Discharge' &&(
+                          {resultData?.classs == 'Nasal_Discharge' &&(
                               <View style={styles.cardh}>
                               <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
 
