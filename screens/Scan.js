@@ -209,7 +209,7 @@ const Scan = () => {
       try {
         
         //alwas check the Link in the backend it can be change when you resetart the application
-        const response = await axios.post('API_URL', formData, {
+        const response = await axios.post(API_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -654,7 +654,7 @@ const Scan = () => {
                 </View>
                 ) : (
                   <View>
-                    {resultData?.classs == 'Keratosis' &&(
+                    {resultData?.classs == 'keratosis' &&(
                       <View style={styles.cardh}>
                         {/* <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text> */}
                         
@@ -730,7 +730,7 @@ const Scan = () => {
                             </View>  )
                           }
 
-                          {resultData?.classs == 'Mange' &&(
+                          {resultData?.classs == 'skin_lesions' &&(
                               <View style={styles.cardh}>
                               <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
 
@@ -782,7 +782,7 @@ const Scan = () => {
                             </View>  )
                           }
 
-                          {resultData?.classs == 'Nasal_Discharge' &&(
+                          {resultData?.classs == 'nasal_discharge' &&(
                               <View style={styles.cardh}>
                               <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
 
