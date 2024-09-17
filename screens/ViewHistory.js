@@ -71,12 +71,27 @@ const ViewHistory = ({route}) => {
         <Text><Text style={{fontWeight:'bold'}} > Class             :</Text> {selectedItem.results.control.results.classs}</Text>
 
         <Text><Text style={{fontWeight:'bold'}} > Weight          :</Text> {selectedItem.results.control.results.weight}</Text>
-        
-        <Text><Text style={{fontWeight:'bold'}} > Symptom      :</Text> {selectedItem.results.control.results.symptom}</Text>
-
-        <Text><Text style={{fontWeight:'bold'}} > Behaviour     :</Text> {selectedItem.results.control.results.behavoir}</Text>
 
         <Text><Text style={{fontWeight:'bold'}} > Tempreture  :</Text> {selectedItem.results.control.results.temp}</Text>
+
+        <Text style={{ fontWeight: 'bold' }}>Symptoms    :</Text>
+
+        {selectedItem.results.control.results.symptom.map((step, index) => (
+          <View  key={index}>
+            <Text>{index + 1}. {step}</Text>
+          </View>         
+          ))}
+
+        
+        <Text style={{ fontWeight: 'bold' }}>Behaviours   :</Text>
+        <Text>
+        {selectedItem.results.control.results.behavoir.map((step, index) => (
+          <View key={index}>
+            <Text>{index + 1}. {step}</Text>
+          </View>         
+          ))}
+        </Text>
+
 
         <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
         <Text>

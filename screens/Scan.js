@@ -31,6 +31,7 @@ import {
   View
 } from "react-native";
 import { auth, db, storage } from '../firebase/firebase-config'; // Import your Firebase storage instance
+import { RadioButton,Checkbox} from 'react-native-paper'
 
 
 const Scan = () => {
@@ -48,9 +49,9 @@ const Scan = () => {
   const auths = getAuth();
   const settingResult = null;
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedBehavior, setSelectedBehavior] = useState('');
+  const [selectedBehavior, setSelectedBehavior] = React.useState([]);
   const [selectedTest, setSelectedTest] = useState('');
-  const [selectedSymptom, setSelectedSymptom] = useState('');
+  const [selectedSymptom, setSelectedSymptom] = React.useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFalse, setShowDetailsFalse] = useState(false);
   const [firestoreDownloadUrl1,setFirestoreDownloadUrl1] = useState();
@@ -484,7 +485,14 @@ const Scan = () => {
   
   const handleBehaviorChange = (itemValue) => {
     console.log("Behavoiur selected",itemValue);
-    setSelectedBehavior(itemValue);
+    // setSelectedBehavior(itemValue);
+    if (selectedBehavior.includes(itemValue)) {
+      // Remove the behavior if it's already selected
+      setSelectedBehavior(selectedBehavior.filter(b => b !== itemValue));
+    } else {
+      // Add the behavior to the selected list
+      setSelectedBehavior([...selectedBehavior, itemValue]);
+    }
     setShowDetails(false); // Reset details on behavior change
   };
 
@@ -497,6 +505,19 @@ const Scan = () => {
   const handleSymptomChange = (itemValue) => {
     console.log("Symtopm selected",itemValue);
     setSelectedSymptom(itemValue);
+
+    if (selectedSymptom.includes(itemValue)) {
+      // Remove the behavior if it's already selected
+      setSelectedSymptom(selectedSymptom.filter(b => b !== itemValue));
+    } else {
+      // Add the behavior to the selected list
+      setSelectedSymptom([...selectedSymptom, itemValue]);
+    }
+
+
+
+
+
     setShowDetails(false); // Reset details on symptom change
   };
 
@@ -504,7 +525,7 @@ const Scan = () => {
     console.log("handleShowDetails");
     activeStatus = 'No'
 
-    if(selectedBehavior === 'Scratching the infected area' && selectedSymptom === 'Thickened Skin'){
+    if(selectedBehavior.includes('Scratching the infected area') && selectedSymptom.includes('Thickened Skin')){
       console.log("URL1", firestoreDownloadUrl1);
       console.log("URL2", firestoreDownloadUrl2);
       console.log("URL3", firestoreDownloadUrl3);
@@ -516,12 +537,12 @@ const Scan = () => {
 
       // setResultData(resultData);
 
-    }else if(selectedBehavior === 'Excessive Scratching' && selectedSymptom === ' Hair Loss in the area'){
+    }else if(selectedBehavior.includes('Excessive Scratching') && selectedSymptom.includes(' Hair Loss in the area')){
       activeStatus = 'Yes'
       setShowDetails(true)
       // setResultData(seResult);
 
-    }else if(selectedBehavior === 'Sneezing' && selectedSymptom === 'Thick Yellow, Green, White or Bloody Discharge'){
+    }else if(selectedBehavior.includes('Sneezing') && selectedSymptom.includes('Thick Yellow, Green, White or Bloody Discharge')){
       activeStatus = 'Yes'
       setShowDetails(true)
       
@@ -635,43 +656,61 @@ const Scan = () => {
                   <View>
                     {resultData?.classs == 'Keratosis' &&(
                       <View style={styles.cardh}>
-                        <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+                        {/* <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text> */}
                         
-                            <Picker
-                              selectedValue={selectedBehavior}
-                              onValueChange={handleBehaviorChange}
-                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                            >
-                             <Picker.Item style={{fontSize: 10}} label="Select a behavior..." value="" />
-                                  {behaviors_keratosis.map((behavior, index) => (
-                                    <Picker.Item style={{fontSize: 10}} key={index} label={behavior} value={behavior} />
-                                  ))}
-                            
-                            </Picker>
+                           
+                          {/* behaviour */}
+                          <View>
+                                <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a behavior:</Text>
+                                {behaviors_keratosis.map((behavior, index) => (
+                                  <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                    <Checkbox
+                                      value={behavior}
+                                      status={selectedBehavior.includes(behavior) ? 'checked' : 'unchecked'}
+                                      onPress={() => handleBehaviorChange(behavior)}
+                                    />
+                                    <Text>{behavior}</Text>
+                                  </View>
+                                ))}
+                              </View>
 
-                            <Picker
-                              selectedValue={selectedSymptom}
-                              onValueChange={handleSymptomChange}
-                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                            >
-                              <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
+
+
+
+
+                              
+                              {/* symptom */}
+                              <View>
+                                <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a Symptom:</Text>
                                 {symptoms_keratosis.map((symptom, index) => (
-                                  <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
+                                  <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                    <Checkbox
+                                      value={symptom}
+                                      status={selectedSymptom.includes(symptom) ? 'checked' : 'unchecked'}
+                                      onPress={() => handleSymptomChange(symptom)}
+                                    />
+                                    <Text>{symptom}</Text>
+                                  </View>
                                 ))}
-                              
-                            </Picker>
+                              </View>
+                            
 
-                            <Picker
-                              selectedValue={selectedTest}
-                              onValueChange={handleTestChange}
-                              mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                            >
-                              <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                            {/* Test */}
+                            <View>
+                                <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a Test:</Text>
                                 {test_keratosis.map((test, index) => (
-                                  <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                  <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                    <RadioButton
+                                      value={test}
+                                      status={selectedTest === test ? 'checked' : 'unchecked'}
+                                      onPress={() => handleTestChange(test)}
+                                    />
+                                    <Text>{test}</Text>
+                                  </View>
                                 ))}
-                              
-                            </Picker>
+                              </View>
+
+                
 
                                           
                             <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
