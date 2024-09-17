@@ -485,21 +485,17 @@ const Scan = () => {
   
   const handleBehaviorChange = (itemValue) => {
     console.log("Behavoiur selected",itemValue);
-    // setSelectedBehavior(itemValue);
     if (selectedBehavior.includes(itemValue)) {
-      // Remove the behavior if it's already selected
       setSelectedBehavior(selectedBehavior.filter(b => b !== itemValue));
     } else {
-      // Add the behavior to the selected list
       setSelectedBehavior([...selectedBehavior, itemValue]);
     }
-    setShowDetails(false); // Reset details on behavior change
+    setShowDetails(false); 
   };
 
   const handleTestChange = (itemValue) => {
     console.log("Test selected",itemValue);
     setSelectedTest(itemValue);
-    // setShowDetails(false); // Reset details on behavior change
   };
 
   const handleSymptomChange = (itemValue) => {
@@ -507,18 +503,11 @@ const Scan = () => {
     setSelectedSymptom(itemValue);
 
     if (selectedSymptom.includes(itemValue)) {
-      // Remove the behavior if it's already selected
       setSelectedSymptom(selectedSymptom.filter(b => b !== itemValue));
     } else {
-      // Add the behavior to the selected list
       setSelectedSymptom([...selectedSymptom, itemValue]);
     }
-
-
-
-
-
-    setShowDetails(false); // Reset details on symptom change
+    setShowDetails(false);
   };
 
   const handleShowDetails = () => {
@@ -537,7 +526,7 @@ const Scan = () => {
 
       // setResultData(resultData);
 
-    }else if(selectedBehavior.includes('Excessive Scratching') && selectedSymptom.includes(' Hair Loss in the area')){
+    }else if(selectedBehavior.includes('Excessive Scratching') && selectedSymptom.includes('Hair Loss in the area')){
       activeStatus = 'Yes'
       setShowDetails(true)
       // setResultData(seResult);
@@ -673,11 +662,6 @@ const Scan = () => {
                                   </View>
                                 ))}
                               </View>
-
-
-
-
-
                               
                               {/* symptom */}
                               <View>
@@ -692,21 +676,17 @@ const Scan = () => {
                                     <Text>{symptom}</Text>
                                   </View>
                                 ))}
-                              </View>
-                            
+                              </View>                            
 
-                            {/* Test */}
-                            <View>
-                                <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a Test:</Text>
+                            {/* Test */}                        
+                              <View>
+                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>Test:</Text>
                                 {test_keratosis.map((test, index) => (
-                                  <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-                                    <RadioButton
-                                      value={test}
-                                      status={selectedTest === test ? 'checked' : 'unchecked'}
-                                      onPress={() => handleTestChange(test)}
-                                    />
-                                    <Text>{test}</Text>
-                                  </View>
+                                  <TouchableOpacity key={index} onPress={() => handleTestChange(test)}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                      <Text>{test}</Text>
+                                    </View>
+                                  </TouchableOpacity>
                                 ))}
                               </View>
 
@@ -732,45 +712,49 @@ const Scan = () => {
 
                           {resultData?.classs == 'skin_lesions' &&(
                               <View style={styles.cardh}>
-                              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
 
+                                  {/* behaviour */}
+                                  <View>
+                                        <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a behavior:</Text>
+                                        {behaviors_mange.map((symptom, index) => (
+                                          <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                            <Checkbox
+                                              value={symptom}
+                                              status={selectedBehavior.includes(symptom) ? 'checked' : 'unchecked'}
+                                              onPress={() => handleBehaviorChange(symptom)}
+                                            />
+                                            <Text>{symptom}</Text>
+                                          </View>
+                                        ))}
+                                      </View>                           
 
-                              <Picker
-                                    selectedValue={selectedBehavior}
-                                    onValueChange={handleBehaviorChange}
-                                    mode="dropdown" 
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a Bahavoiur..." value="" />
-                                      {behaviors_mange.map((symptom, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
-                                      ))}
-                                    
-                                  </Picker>  
-                            
+                                   {/* Symptom */}
 
-                                  <Picker
-                                    selectedValue={selectedSymptom}
-                                    onValueChange={handleSymptomChange}
-                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
-                                      {symptoms_mange.map((symptom, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
-                                      ))}
-                                    
-                                  </Picker>      
-
-                                  <Picker
-                                    selectedValue={selectedTest}
-                                    onValueChange={handleTestChange}
-                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                                  <View>
+                                    <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a Symptom:</Text>
+                                    {symptoms_mange.map((symptom, index) => (
+                                      <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                        <Checkbox
+                                          value={symptom}
+                                          status={selectedSymptom.includes(symptom) ? 'checked' : 'unchecked'}
+                                          onPress={() => handleSymptomChange(symptom)}
+                                        />
+                                        <Text>{symptom}</Text>
+                                      </View>
+                                    ))}
+                                  </View>   
+                                  
+                                  {/* test  */}
+                                    <View>
+                                      <Text style={{ fontSize: 14, fontWeight: 'bold' }}>Test:</Text>
                                       {test_mange.map((test, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                        <TouchableOpacity key={index} onPress={() => handleTestChange(test)}>
+                                          <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                            <Text>{test}</Text>
+                                          </View>
+                                        </TouchableOpacity>
                                       ))}
-                                    
-                                  </Picker>            
+                                    </View>           
                                   
                                   <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
                                   <View style={styles.button}>
@@ -783,46 +767,50 @@ const Scan = () => {
                           }
 
                           {resultData?.classs == 'nasal_discharge' &&(
-                              <View style={styles.cardh}>
-                              <Text style={{width:220, fontWeight:"600", fontSize:20}}>Please Select</Text>
+                              <View style={styles.cardh}>                              
 
+                                   {/* behaviour */}
+                                   <View>
+                                        <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a behavior:</Text>
+                                        {behaviour_Nasal_Discharge.map((symptom, index) => (
+                                          <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                            <Checkbox
+                                              value={symptom}
+                                              status={selectedBehavior.includes(symptom) ? 'checked' : 'unchecked'}
+                                              onPress={() => handleBehaviorChange(symptom)}
+                                            />
+                                            <Text>{symptom}</Text>
+                                          </View>
+                                        ))}
+                                      </View>                       
 
-                              <Picker
-                                    selectedValue={selectedBehavior}
-                                    onValueChange={handleBehaviorChange}
-                                    mode="dropdown" 
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a Bahavoiur..." value="" />
-                                      {behaviour_Nasal_Discharge.map((symptom, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
-                                      ))}
-                                    
-                                  </Picker>  
                             
+                                    {/* Symptom */}
+                                  <View>
+                                    <Text style={{ fontSize: 14,fontWeight: 'bold' }}>Select a Symptom:</Text>
+                                    {symptom_Nasal_Discharge.map((symptom, index) => (
+                                      <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                        <Checkbox
+                                          value={symptom}
+                                          status={selectedSymptom.includes(symptom) ? 'checked' : 'unchecked'}
+                                          onPress={() => handleSymptomChange(symptom)}
+                                        />
+                                        <Text>{symptom}</Text>
+                                      </View>
+                                    ))}
+                                  </View>                                  
 
-                                  <Picker
-                                    selectedValue={selectedSymptom}
-                                    onValueChange={handleSymptomChange}
-                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a symptom..." value="" />
-                                      {symptom_Nasal_Discharge.map((symptom, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={symptom} value={symptom} />
-                                      ))}
-                                    
-                                  </Picker>      
-
-                                  <Picker
-                                    selectedValue={selectedTest}
-                                    onValueChange={handleTestChange}
-                                    mode="dropdown" // Adjust mode as needed (dropdown, modal)
-                                  >
-                                    <Picker.Item style={{fontSize: 10}} label="Select a Test..." value="" />
+                                   {/* test  */}
+                                    <View>
+                                      <Text style={{ fontSize: 14, fontWeight: 'bold' }}>Test:</Text>
                                       {test_Nasal_Discharge.map((test, index) => (
-                                        <Picker.Item style={{fontSize: 10}} key={index} label={test} value={test} />
+                                        <TouchableOpacity key={index} onPress={() => handleTestChange(test)}>
+                                          <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
+                                            <Text>{test}</Text>
+                                          </View>
+                                        </TouchableOpacity>
                                       ))}
-                                    
-                                  </Picker>            
+                                    </View>           
                                   
                                   <TouchableOpacity onPress={handleShowDetails} disabled={!selectedBehavior || !selectedSymptom}>
                                   <View style={styles.button}>

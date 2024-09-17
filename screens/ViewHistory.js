@@ -84,13 +84,13 @@ const ViewHistory = ({route}) => {
 
         
         <Text style={{ fontWeight: 'bold' }}>Behaviours   :</Text>
-        <Text>
+       
         {selectedItem.results.control.results.behavoir.map((step, index) => (
           <View key={index}>
             <Text>{index + 1}. {step}</Text>
           </View>         
           ))}
-        </Text>
+       
 
 
         <Text style={{ fontWeight: 'bold' }}>Control Steps:</Text>
